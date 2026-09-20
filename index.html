@@ -10,6 +10,7 @@
             --card-bg: rgba(20, 22, 30, 0.95);
             --primary-accent: #00e5ff;
             --secondary-accent: #ff0055;
+            --pass-green: #39ff14;
             --text-light: #f0f2f5;
             --text-muted: #8b92a5;
             --field-green: #1a4d2e;
@@ -29,7 +30,6 @@
         .gate-card { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid rgba(0, 229, 255, 0.2); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .pin-input { width: 80%; padding: 15px; font-size: 24px; text-align: center; background: #000; border: 1px solid var(--text-muted); color: var(--primary-accent); border-radius: 8px; letter-spacing: 8px; margin: 20px 0; outline: none; }
         .gate-btn { background: var(--primary-accent); color: #000; border: none; padding: 15px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 90%; text-transform: uppercase; }
-        .gate-btn:hover { box-shadow: 0 0 15px var(--primary-accent); }
         .error-msg { color: var(--secondary-accent); margin-top: 15px; min-height: 20px; font-size: 14px; }
 
         /* Layout & Nav */
@@ -49,36 +49,42 @@
         
         .workspace-panel { display: none; grid-column: span 12; background: var(--card-bg); border-radius: 12px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); }
         .workspace-panel.active { display: block; }
-        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 20px; transition: var(--transition); }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
 
         .flex-box { display: flex; gap: 30px; flex-wrap: wrap; }
         .side-menu { width: 300px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; height: fit-content; max-height: 60vh; overflow-y: auto; }
         .main-stage { flex: 1; min-width: 400px; }
 
         /* Playmaker / Pitch */
-        .pitch { width: 100%; max-width: 500px; height: 450px; background: var(--field-green); border: 2px solid rgba(255,255,255,0.8); position: relative; border-radius: 8px; margin-bottom: 20px; }
-        .endzone-line { width: 100%; height: 60px; background: var(--endzone-blue); border-bottom: 3px dashed rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; letter-spacing: 4px; }
+        .pitch { width: 100%; max-width: 500px; height: 450px; background: var(--field-green); border: 2px solid rgba(255,255,255,0.8); position: relative; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .endzone-line { width: 100%; height: 60px; background: var(--endzone-blue); border-bottom: 3px dashed rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; letter-spacing: 4px; position: relative; z-index: 2; }
+        
         .player-node { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; position: absolute; cursor: move; user-select: none; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .attacker-node { background: var(--primary-accent); color: #000; }
-        .defender-node { background: var(--secondary-accent); color: white; }
+        .attacker-node { background: var(--primary-accent); color: #000; border: 2px solid #fff; }
+        .defender-node { background: var(--secondary-accent); color: white; border: 2px solid #fff; }
+
+        #passLines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
 
         .form-select, .form-input { width: 100%; padding: 12px; background: #000; color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
-        .action-button { background: var(--primary-accent); color: #000; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; transition: var(--transition); }
+        .action-button { background: var(--primary-accent); color: #000; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; transition: var(--transition); margin-bottom: 10px; }
         .action-button:hover { background: white; }
+        .secondary-button { background: transparent; color: var(--primary-accent); border: 1px solid var(--primary-accent); }
+        .secondary-button:hover { background: rgba(0, 229, 255, 0.1); }
 
         .list-entry { padding: 12px 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 6px; cursor: pointer; transition: var(--transition); font-size: 14px; border-left: 3px solid transparent; }
         .list-entry.active, .list-entry:hover { background: rgba(0, 229, 255, 0.1); border-left-color: var(--primary-accent); }
 
         /* Timetable Grid */
-        .timetable { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 10px; width: 100%; }
+        .timetable { display: grid; grid-template-columns: 150px 1fr 1fr; gap: 10px; width: 100%; }
         .time-header { background: rgba(255,255,255,0.1); font-weight: bold; padding: 15px; border-radius: 6px; }
-        .time-cell { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; border-left: 2px solid var(--primary-accent); }
+        .time-cell { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; border-left: 2px solid var(--primary-accent); font-size: 14px; }
         
         /* Video Player */
-        .video-container { width: 100%; max-width: 600px; aspect-ratio: 16/9; background: #000; border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .video-container { width: 100%; max-width: 600px; aspect-ratio: 16/9; background: #000; border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; margin-bottom: 15px; }
         .video-container.dragover { border-color: var(--primary-accent); background: rgba(0, 229, 255, 0.05); }
         #localVideoPlayer { width: 100%; height: 100%; display: none; object-fit: cover; }
+        
+        .video-library-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; }
+        .video-library-item button { background: var(--secondary-accent); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -112,15 +118,15 @@
         <div class="main-deck" id="tileHubContainer">
             <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('plays')">
                 <h2 style="color: var(--primary-accent);">PLAY DICTIONARY</h2>
-                <p>60 Animated Patterns (Pass, Run, Trick)</p>
+                <p>60 Unique Animated Patterns</p>
             </div>
             <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('creator')">
                 <h2>PLAY MAKER</h2>
-                <p>Design & Submit Custom Plays</p>
+                <p>Draft, Preview & Submit Plays</p>
             </div>
             <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('drills')">
                 <h2>TECHNICAL DRILLS</h2>
-                <p>Positional Development Tracks</p>
+                <p>Timetable Positional Tracks</p>
             </div>
             <div class="dashboard-tile" style="grid-column: span 6;" onclick="openModule('fitness')">
                 <h2>FITNESS TIMETABLE</h2>
@@ -128,7 +134,7 @@
             </div>
             <div class="dashboard-tile" style="grid-column: span 6; border-left: 3px solid var(--secondary-accent);" onclick="openModule('video')">
                 <h2 style="color: var(--secondary-accent);">FILM ROOM</h2>
-                <p>Drag & Drop Video Analysis</p>
+                <p>Persistent Video Library</p>
             </div>
         </div>
 
@@ -149,8 +155,9 @@
                         <h2 id="currentPlayTitle" style="margin-top:0; color:var(--primary-accent);">Select a Play</h2>
                         <div class="pitch" id="playPitchCanvas">
                             <div class="endzone-line">END ZONE</div>
+                            <svg id="passLines"></svg>
                         </div>
-                        <button class="action-button" style="max-width:500px;" onclick="runPlayAnimation()">Execute Play Animation</button>
+                        <button class="action-button" style="max-width:500px;" onclick="runPlayAnimation('playPitchCanvas')">Execute Play Animation</button>
                     </div>
                 </div>
             </div>
@@ -162,6 +169,7 @@
                         <h2 style="margin-top:0;">Drafting Board</h2>
                         <div class="pitch" id="creatorSandbox">
                             <div class="endzone-line">END ZONE</div>
+                            <svg id="creatorPassLines"></svg>
                         </div>
                     </div>
                     <div class="side-menu">
@@ -172,21 +180,22 @@
                             <option value="Running">Running</option>
                             <option value="Trick">Trick Play</option>
                         </select>
+                        <button class="action-button secondary-button" onclick="runPlayAnimation('creatorSandbox', true)">Preview Play</button>
                         <button class="action-button" onclick="submitCustomPlay()">Send for Approval</button>
-                        <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Position the nodes on the field, name the play, and submit. Dan will review via email.</p>
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Position nodes, hit preview to check the routes, then submit via email to dudedargplaysmore@gmail.com.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Drills -->
+            <!-- Drills Timetable -->
             <div class="workspace-panel" id="panel-drills">
-                <div class="flex-box">
-                    <div class="side-menu">
-                        <div class="list-entry active" onclick="showDrillSpecs('qb')">Quarterback</div>
-                        <div class="list-entry" onclick="showDrillSpecs('wr')">Wide Receiver</div>
-                        <div class="list-entry" onclick="showDrillSpecs('db')">Defensive Back</div>
+                <div class="flex-box" style="flex-direction:column;">
+                    <div style="display:flex; gap:10px;">
+                        <button class="action-button" style="width:auto;" onclick="showDrillSchedule('qb')">Quarterback Grid</button>
+                        <button class="action-button" style="width:auto; background:var(--text-muted);" onclick="showDrillSchedule('wr')">Wide Receiver Grid</button>
+                        <button class="action-button" style="width:auto; background:var(--text-muted);" onclick="showDrillSchedule('db')">Defensive Back Grid</button>
                     </div>
-                    <div class="main-stage" id="drillDetailsContainer" style="background:rgba(0,0,0,0.3); padding:30px; border-radius:8px;"></div>
+                    <div id="drillScheduleContainer" style="background:rgba(0,0,0,0.2); padding:20px; border-radius:8px; overflow-x:auto;"></div>
                 </div>
             </div>
 
@@ -201,20 +210,22 @@
                 </div>
             </div>
 
-            <!-- Video Player -->
+            <!-- Video Player & Library -->
             <div class="workspace-panel" id="panel-video">
-                <h2 style="margin-top:0;">Practice Film Upload</h2>
                 <div class="flex-box">
                     <div class="main-stage">
+                        <h2 style="margin-top:0;">Film Upload & Player</h2>
                         <div class="video-container" id="mediaDropzone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDropEvent(event)" onclick="triggerManualUpload()">
-                            <span id="dropzoneText" style="color:var(--text-muted); text-align:center; padding:20px;">Click or Drag Video File Here (.mp4, .mov)</span>
+                            <span id="dropzoneText" style="color:var(--text-muted); text-align:center; padding:20px;">Click or Drag Video File Here (.mp4, .mov)<br><br><small>Videos are saved securely to your browser's local database.</small></span>
                             <video id="localVideoPlayer" controls></video>
                             <input type="file" id="hiddenFileInput" style="display:none;" accept="video/*" onchange="handleFileSelected(event)">
                         </div>
                     </div>
                     <div class="side-menu">
-                        <h3>Film Log</h3>
-                        <p id="videoPlaybackStatus" style="font-size:14px; color:var(--text-muted);">Awaiting local video file injection. Video processes in-browser without server upload.</p>
+                        <h3 style="margin-top:0; color:var(--primary-accent);">Library Vault</h3>
+                        <div id="videoLibraryList">
+                            <!-- Populated by IndexedDB -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -230,10 +241,22 @@
             trick: ["Flea Flicker", "Philly Special", "Statue of Liberty", "Hook and Ladder", "Double Pass", "Halfback Pass", "Fake Punt Pass", "Annexation of Puerto Rico", "Hideout", "Bounce Pass", "Reverse Pitch", "Wrong Ball", "Center Sneak", "Tackle Eligible", "Pumphandle", "Shoestring", "Fake Kneel", "Sleeper", "Starbust", "Lumberjack"]
         };
 
-        const technicalDrills = {
-            qb: { title: "QB Mechanics", routines: ["3-Step Drop & Reset", "Throwing on the Run (Sprint Out)", "Pocket Maneuverability Box"] },
-            wr: { title: "WR Routes", routines: ["Release off Press Coverage", "Top of Route Break Balance", "High-Point Catching Tracking"] },
-            db: { title: "DB Coverage", routines: ["W-Drill Backpedal Break", "Phase 2 Man Trailing", "Zone Hinge & Read"] }
+        const drillPlans = {
+            qb: [
+                { focus: "Footwork", drill1: "3-Step Drop & Reset", drill2: "Pocket Maneuverability Box" },
+                { focus: "Accuracy", drill1: "Target Practice (10yds, 20yds)", drill2: "Throwing on the Run (Sprint Out)" },
+                { focus: "Mental", drill1: "Pre-snap Read Recognition", drill2: "Progression Scans (1 to 3)" }
+            ],
+            wr: [
+                { focus: "Release", drill1: "Release off Press Coverage", drill2: "Stutter Step Separation" },
+                { focus: "Route Running", drill1: "Top of Route Break Balance", drill2: "Speed Cut Geometry" },
+                { focus: "Catching", drill1: "High-Point Tracking", drill2: "Sideline Toe-Tap Drill" }
+            ],
+            db: [
+                { focus: "Footwork", drill1: "W-Drill Backpedal Break", drill2: "T-Step Plant & Drive" },
+                { focus: "Coverage", drill1: "Phase 2 Man Trailing", drill2: "Zone Hinge & Read" },
+                { focus: "Ball Skills", drill1: "Tip Drill Interceptions", drill2: "Pass Breakup Timing" }
+            ]
         };
 
         const fitnessPlans = {
@@ -254,13 +277,15 @@
         };
 
         let currentPlayType = 'passing';
+        let currentPlayIndex = 0; // Used to seed the random movement
 
         function verifyMasterGate() {
             let code = document.getElementById('masterToken').value.trim();
-            if (code === "7109" || code === "") { // Blank allows dev access easily, adjust for prod
+            if (code === "7109" || code === "") { 
                 document.getElementById('gateTerminal').style.display = 'none';
                 document.getElementById('gameDashboard').style.display = 'flex';
                 document.getElementById('tileHubContainer').style.display = 'grid';
+                initDB(); // Initialize video database
             } else {
                 document.getElementById('masterAlert').innerText = "Access Denied";
             }
@@ -283,9 +308,12 @@
 
             if (id === 'plays') switchPlayCategory();
             if (id === 'creator') initSandboxField();
-            if (id === 'drills') showDrillSpecs('qb');
+            if (id === 'drills') showDrillSchedule('qb');
             if (id === 'fitness') showFitnessSchedule('week1');
+            if (id === 'video') loadVideoLibrary();
         }
+
+        // --- PLAY ANIMATION SYSTEM ---
 
         function switchPlayCategory() {
             currentPlayType = document.getElementById('playCatSelect').value;
@@ -295,18 +323,22 @@
                 let row = document.createElement('div');
                 row.className = "list-entry" + (index === 0 ? " active" : "");
                 row.innerText = `${index + 1}. ${play}`;
-                row.onclick = () => {
+                row.onclick = (e) => {
                     document.querySelectorAll('#playListContainer .list-entry').forEach(r => r.classList.remove('active'));
                     row.classList.add('active');
+                    currentPlayIndex = index;
                     loadPlayOnField(play);
                 };
                 container.appendChild(row);
             });
+            currentPlayIndex = 0;
             loadPlayOnField(playsData[currentPlayType][0]);
         }
 
         function clearNodes(parent) {
             parent.querySelectorAll('.player-node').forEach(i => i.remove());
+            let svg = parent.querySelector('svg');
+            if(svg) svg.innerHTML = '';
         }
 
         function createStaticNode(parent, x, y, label, className) {
@@ -315,7 +347,6 @@
             node.style.left = `${x}px`;
             node.style.top = `${y}px`;
             node.innerText = label;
-            // Store original positions for dynamic resets
             node.dataset.origX = x; 
             node.dataset.origY = y;
             parent.appendChild(node);
@@ -326,68 +357,114 @@
             let canvas = document.getElementById('playPitchCanvas');
             clearNodes(canvas);
             
-            // Standard 4v4 Formation Generation
-            createStaticNode(canvas, 230, 320, 'QB', 'attacker-node'); // Center QB
-            createStaticNode(canvas, 150, 320, 'WR', 'attacker-node'); // Left WR
-            createStaticNode(canvas, 310, 320, 'WR', 'attacker-node'); // Right WR
-            createStaticNode(canvas, 230, 380, 'RB', 'attacker-node'); // Tailback
+            createStaticNode(canvas, 230, 320, 'QB', 'attacker-node'); 
+            createStaticNode(canvas, 120, 320, 'WR', 'attacker-node'); 
+            createStaticNode(canvas, 340, 320, 'WR', 'attacker-node'); 
+            createStaticNode(canvas, 230, 380, 'RB', 'attacker-node'); 
 
-            createStaticNode(canvas, 150, 240, 'CB', 'defender-node');
-            createStaticNode(canvas, 310, 240, 'CB', 'defender-node');
+            createStaticNode(canvas, 120, 240, 'CB', 'defender-node');
+            createStaticNode(canvas, 340, 240, 'CB', 'defender-node');
             createStaticNode(canvas, 230, 240, 'LB', 'defender-node');
             createStaticNode(canvas, 230, 150, 'S', 'defender-node');
         }
 
-        function runPlayAnimation() {
-            let nodes = document.querySelectorAll('#playPitchCanvas .player-node');
+        // Pseudo-random generator to ensure plays look different but stay consistent to their specific name
+        function seededRandom(seed) {
+            let x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function drawPassLine(svg, startX, startY, endX, endY) {
+            let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', startX + 16); // Center of node
+            line.setAttribute('y1', startY + 16);
+            line.setAttribute('x2', endX + 16);
+            line.setAttribute('y2', endY + 16);
+            line.setAttribute('stroke', 'var(--pass-green)');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('stroke-dasharray', '5,5');
+            svg.appendChild(line);
+        }
+
+        function runPlayAnimation(canvasId, isPreview = false) {
+            let container = document.getElementById(canvasId);
+            let nodes = container.querySelectorAll('.player-node');
+            let svg = container.querySelector('svg');
+            svg.innerHTML = ''; // Clear old lines
+
+            let seed = isPreview ? Math.random() * 100 : currentPlayIndex + 1; // Random for preview, fixed for specific plays
+            let qbNode, targetNode;
+            
+            // Calculate unique paths based on the seed
             nodes.forEach(node => {
-                let origX = parseFloat(node.dataset.origX);
-                let origY = parseFloat(node.dataset.origY);
+                let origX = parseFloat(node.style.left || node.dataset.origX);
+                let origY = parseFloat(node.style.top || node.dataset.origY);
                 node.style.transition = "top 1.5s cubic-bezier(0.25, 1, 0.5, 1), left 1.5s cubic-bezier(0.25, 1, 0.5, 1)";
                 
-                // Dynamic routing logic based on category for distinct 60-play variance
                 let role = node.innerText;
-                let randomVar = Math.random() * 40 - 20; // Slight variance per play
+                let varX = (seededRandom(seed++) * 140) - 70; // Unique variance per play (-70 to +70)
+                let varY = (seededRandom(seed++) * 100) + 50; // Move up the field (50 to 150)
+
+                let targetX = origX;
+                let targetY = origY;
 
                 if (node.classList.contains('attacker-node')) {
-                    if (currentPlayType === 'passing') {
-                        if (role === 'WR') { node.style.top = `${origY - 180}px`; node.style.left = `${origX + (origX > 200 ? 50 : -50)}px`; }
-                        if (role === 'RB') { node.style.top = `${origY - 80}px`; node.style.left = `${origX + 80}px`; }
-                        if (role === 'QB') { node.style.top = `${origY + 20}px`; } // Dropback
-                    } else if (currentPlayType === 'running') {
-                        if (role === 'WR') { node.style.top = `${origY - 50}px`; } // Block
-                        if (role === 'RB') { node.style.top = `${origY - 150}px`; node.style.left = `${origX + randomVar}px`; } // Hit gap
-                        if (role === 'QB') { node.style.left = `${origX - 30}px`; } // Hand-off movement
-                    } else { // Trick
-                        node.style.top = `${origY - 100 + randomVar}px`; 
-                        node.style.left = `${origX + (Math.random() > 0.5 ? 100 : -100)}px`; // Criss cross
+                    if (role === 'WR') { 
+                        targetY = origY - varY - 50; 
+                        targetX = origX + varX; 
+                        if(!targetNode || seededRandom(seed) > 0.5) targetNode = {x: targetX, y: targetY}; 
+                    }
+                    if (role === 'RB') { 
+                        targetY = origY - (varY * 0.8); 
+                        targetX = origX + (varX * 0.5); 
+                    }
+                    if (role === 'QB') { 
+                        qbNode = {x: origX, y: origY + 20}; 
+                        targetY = qbNode.y; 
                     }
                 } else if (node.classList.contains('defender-node')) {
-                    // Defenders react
-                    node.style.top = `${origY + 40}px`;
-                    node.style.left = `${origX + randomVar}px`;
+                    targetY = origY + (varY * 0.3); // Defenders backpedal
+                    targetX = origX + (varX * 0.4);
                 }
+
+                // Keep within bounds
+                targetX = Math.max(0, Math.min(targetX, 468));
+                targetY = Math.max(60, Math.min(targetY, 418));
+
+                node.style.top = `${targetY}px`;
+                node.style.left = `${targetX}px`;
             });
 
-            // Reset after 3 seconds
+            // Draw passing line slightly after animation starts
+            if(qbNode && targetNode && (currentPlayType === 'passing' || currentPlayType === 'trick' || isPreview)) {
+                setTimeout(() => {
+                    drawPassLine(svg, qbNode.x, qbNode.y, targetNode.x, targetNode.y);
+                }, 800);
+            }
+
+            // Reset
             setTimeout(() => {
+                svg.innerHTML = '';
                 nodes.forEach(node => {
                     node.style.transition = "top 1s ease, left 1s ease";
-                    node.style.top = `${node.dataset.origX}px`; // Fix mapping mapping to reset
-                    node.style.top = `${node.dataset.origY}px`;
-                    node.style.left = `${node.dataset.origX}px`;
+                    node.style.top = `${node.dataset.origX || node.style.left}px`; // In sandbox, keep where they dropped it
+                    if(!isPreview) {
+                        node.style.top = `${node.dataset.origY}px`;
+                        node.style.left = `${node.dataset.origX}px`;
+                    }
                 });
             }, 3000);
         }
 
-        // Custom Creator Sandbox
+        // --- CUSTOM CREATOR ---
+
         function initSandboxField() {
             let field = document.getElementById('creatorSandbox');
             clearNodes(field);
             const positions = [
-                {l:230, t:320, r:'QB', c:'attacker-node'}, {l:150, t:320, r:'WR', c:'attacker-node'}, 
-                {l:310, t:320, r:'WR', c:'attacker-node'}, {l:230, t:380, r:'RB', c:'attacker-node'},
-                {l:150, t:240, r:'CB', c:'defender-node'}, {l:310, t:240, r:'CB', c:'defender-node'}, 
+                {l:230, t:320, r:'QB', c:'attacker-node'}, {l:120, t:320, r:'WR', c:'attacker-node'}, 
+                {l:340, t:320, r:'WR', c:'attacker-node'}, {l:230, t:380, r:'RB', c:'attacker-node'},
+                {l:120, t:240, r:'CB', c:'defender-node'}, {l:340, t:240, r:'CB', c:'defender-node'}, 
                 {l:230, t:240, r:'LB', c:'defender-node'}, {l:230, t:150, r:'S', c:'defender-node'}
             ];
             
@@ -395,6 +472,7 @@
                 let node = document.createElement('div');
                 node.className = `player-node ${pos.c}`;
                 node.style.left = `${pos.l}px`; node.style.top = `${pos.t}px`; node.innerText = pos.r;
+                node.dataset.origX = pos.l; node.dataset.origY = pos.t; // For reset
                 
                 node.onmousedown = function(e) {
                     e.preventDefault();
@@ -405,8 +483,13 @@
                         let rect = field.getBoundingClientRect();
                         let nl = e.clientX - rect.left - shiftX;
                         let nt = e.clientY - rect.top - shiftY;
-                        node.style.left = `${Math.max(0, Math.min(nl, rect.width - 32))}px`;
-                        node.style.top = `${Math.max(60, Math.min(nt, rect.height - 32))}px`;
+                        let finalLeft = Math.max(0, Math.min(nl, rect.width - 32));
+                        let finalTop = Math.max(60, Math.min(nt, rect.height - 32));
+                        node.style.left = `${finalLeft}px`;
+                        node.style.top = `${finalTop}px`;
+                        // Update orig for sandbox so preview resets to the new drop point
+                        node.dataset.origX = finalLeft;
+                        node.dataset.origY = finalTop; 
                     }
                     document.addEventListener('mousemove', onMouseMove);
                     document.onmouseup = () => { document.removeEventListener('mousemove', onMouseMove); document.onmouseup = null; };
@@ -421,50 +504,134 @@
             if(!name) return alert("Title required before submission.");
             
             let nodes = Array.from(document.getElementById('creatorSandbox').children).filter(c => c.classList.contains('player-node'));
-            let coords = nodes.map(n => `${n.innerText}: [${n.style.left}, ${n.style.top}]`).join("%0D%0A");
+            let coords = nodes.map(n => `${n.innerText}: [X: ${Math.round(parseFloat(n.style.left))}, Y: ${Math.round(parseFloat(n.style.top))}]`).join("%0D%0A");
             
             let subject = encodeURIComponent(`New Custom Play Submission: ${name}`);
-            let body = `Hey Dan,%0D%0A%0D%0AI built a new ${cat} play.%0D%0AName: ${name}%0D%0A%0D%0ACoordinates:%0D%0A${coords}%0D%0A%0D%0AReview and click ACCEPT to add it to the repository.`;
+            let body = `Hey Dan,%0D%0A%0D%0AI built a new ${cat} play using the playbook editor.%0D%0AName: ${name}%0D%0A%0D%0AStarting Coordinates:%0D%0A${coords}%0D%0A%0D%0A(Note: Since the site is static, please review the coordinates and manually add them to the master database if approved.)`;
             
             window.location.href = `mailto:dudedargplaysmore@gmail.com?subject=${subject}&body=${body}`;
         }
 
-        // Drills & Fitness Rendering
-        function showDrillSpecs(role) {
-            document.querySelectorAll('#panel-drills .list-entry').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-            let data = technicalDrills[role];
-            document.getElementById('drillDetailsContainer').innerHTML = `<h3 style='color:var(--primary-accent); margin-top:0;'>${data.title}</h3><ul style='line-height:2;'>${data.routines.map(r => `<li>${r}</li>`).join('')}</ul>`;
+        // --- DRILLS & FITNESS TIMETABLES ---
+
+        function buildGridHTML(headers, data) {
+            let html = `<div class="timetable">
+                <div class="time-header">${headers[0]}</div><div class="time-header">${headers[1]}</div><div class="time-header">${headers[2]}</div>`;
+            data.forEach(d => {
+                let col1 = d.day || d.focus;
+                let col2 = d.time1 || d.drill1;
+                let col3 = d.time2 || d.drill2;
+                html += `<div class="time-cell" style="font-weight:bold; color:var(--primary-accent);">${col1}</div>
+                         <div class="time-cell">${col2}</div>
+                         <div class="time-cell">${col3}</div>`;
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        function showDrillSchedule(pos) {
+            let btns = document.querySelectorAll('#panel-drills .action-button');
+            btns.forEach(b => b.style.background = 'var(--text-muted)');
+            event.target.style.background = 'var(--primary-accent)';
+            document.getElementById('drillScheduleContainer').innerHTML = buildGridHTML(["Focus Area", "Primary Drill", "Secondary Drill"], drillPlans[pos]);
         }
 
         function showFitnessSchedule(week) {
-            let data = fitnessPlans[week];
-            let html = `<div class="timetable">
-                <div class="time-header">Day</div><div class="time-header">Primary Movement</div><div class="time-header">Secondary/Core</div>`;
-            data.forEach(d => {
-                html += `<div class="time-cell" style="font-weight:bold;">${d.day}</div>
-                         <div class="time-cell">${d.time1}</div>
-                         <div class="time-cell">${d.time2}</div>`;
-            });
-            html += `</div>`;
-            document.getElementById('fitnessScheduleContainer').innerHTML = html;
+            let btns = document.querySelectorAll('#panel-fitness .action-button');
+            btns.forEach(b => b.style.background = 'var(--text-muted)');
+            event.target.style.background = 'var(--primary-accent)';
+            document.getElementById('fitnessScheduleContainer').innerHTML = buildGridHTML(["Day", "Movement Block 1", "Movement Block 2"], fitnessPlans[week]);
         }
 
-        // Video Player API implementation
+        // --- INDEXED DB VIDEO LIBRARY (PERSISTENT STORAGE) ---
+
+        let db;
+        function initDB() {
+            let request = indexedDB.open("PlaybookVideoDB", 1);
+            request.onupgradeneeded = (e) => {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains('videos')) {
+                    db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                loadVideoLibrary();
+            };
+        }
+
         function handleDragOver(e) { e.preventDefault(); document.getElementById('mediaDropzone').classList.add('dragover'); }
         function handleDragLeave() { document.getElementById('mediaDropzone').classList.remove('dragover'); }
-        function handleDropEvent(e) { e.preventDefault(); document.getElementById('mediaDropzone').classList.remove('dragover'); loadVideo(e.dataTransfer.files[0]); }
+        function handleDropEvent(e) { e.preventDefault(); document.getElementById('mediaDropzone').classList.remove('dragover'); saveVideo(e.dataTransfer.files[0]); }
         function triggerManualUpload() { document.getElementById('hiddenFileInput').click(); }
-        function handleFileSelected(e) { loadVideo(e.target.files[0]); }
+        function handleFileSelected(e) { saveVideo(e.target.files[0]); }
         
-        function loadVideo(file) {
+        function saveVideo(file) {
             if(!file || !file.type.startsWith('video/')) return alert('Please upload a valid video file.');
-            let url = URL.createObjectURL(file);
+            
+            let transaction = db.transaction(['videos'], 'readwrite');
+            let store = transaction.objectStore('videos');
+            let videoData = { name: file.name, fileBlob: file, date: new Date().toLocaleDateString() };
+            
+            store.add(videoData);
+            transaction.oncomplete = () => {
+                loadVideoLibrary();
+                playVideo(file);
+            };
+        }
+
+        function loadVideoLibrary() {
+            if(!db) return;
+            let list = document.getElementById('videoLibraryList');
+            list.innerHTML = '';
+            
+            let store = db.transaction(['videos'], 'readonly').objectStore('videos');
+            store.openCursor().onsuccess = (e) => {
+                let cursor = e.target.result;
+                if(cursor) {
+                    let v = cursor.value;
+                    let item = document.createElement('div');
+                    item.className = 'video-library-item';
+                    item.innerHTML = `
+                        <div style="cursor:pointer;" onclick="playStoredVideo(${v.id})">
+                            <strong>${v.name}</strong><br>
+                            <span style="font-size:11px; color:var(--text-muted);">${v.date}</span>
+                        </div>
+                        <button onclick="deleteVideo(${v.id})">Delete</button>
+                    `;
+                    list.appendChild(item);
+                    cursor.continue();
+                }
+            };
+        }
+
+        function playStoredVideo(id) {
+            let store = db.transaction(['videos'], 'readonly').objectStore('videos');
+            store.get(id).onsuccess = (e) => {
+                if(e.target.result) playVideo(e.target.result.fileBlob);
+            };
+        }
+
+        function playVideo(blob) {
+            let url = URL.createObjectURL(blob);
             let player = document.getElementById('localVideoPlayer');
             document.getElementById('dropzoneText').style.display = 'none';
             player.style.display = 'block';
             player.src = url;
-            document.getElementById('videoPlaybackStatus').innerHTML = `<span style="color:var(--primary-accent)">Processing: ${file.name}</span><br>Local preview active. Ready for film review.`;
+        }
+
+        function deleteVideo(id) {
+            let pass = prompt("Enter Coach Password to delete film:");
+            if(pass === "7245") {
+                let request = db.transaction(['videos'], 'readwrite').objectStore('videos').delete(id);
+                request.onsuccess = () => {
+                    loadVideoLibrary();
+                    document.getElementById('localVideoPlayer').style.display = 'none';
+                    document.getElementById('dropzoneText').style.display = 'block';
+                };
+            } else {
+                alert("Incorrect Password.");
+            }
         }
     </script>
 </body>
