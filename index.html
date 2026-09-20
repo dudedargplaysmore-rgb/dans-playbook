@@ -1,215 +1,771 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dan's Playbook - Hub Deck</title>
-    <style>
-        :root {
-            --fifa-dark: #0a051b;
-            --fifa-card-bg: rgba(18, 10, 43, 0.85);
-            --fifa-purple: #8200ff;
-            --fifa-cyan: #00f0ff;
-            --fifa-neon: #ec00ff;
-            --text-light: #ffffff;
-            --text-muted: #8b83a3;
-            --blue-end: #0044ff;
-            --red-def: #ff3b30;
-        }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #0d0626 0%, #050210 100%); margin: 0; padding: 0; color: var(--text-light); height: 100vh; overflow: hidden; }
-        .gate-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: radial-gradient(circle at center, #1b0c47 0%, #050210 100%); }
-        .gate-card { background: var(--fifa-card-bg); padding: 40px; border-radius: 20px; border: 2px solid var(--fifa-cyan); text-align: center; max-width: 420px; width: 90%; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
-        .gate-card h1 { font-size: 28px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 1px; color: #fff; text-shadow: 0 0 10px var(--fifa-cyan); }
-        .pin-input { width: 85%; padding: 12px; font-size: 24px; text-align: center; border: 2px solid var(--fifa-purple); background: #070314; color: var(--fifa-cyan); border-radius: 8px; letter-spacing: 6px; margin-bottom: 20px; outline: none; }
-        .gate-btn { background: linear-gradient(90deg, var(--fifa-purple), var(--fifa-neon)); color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 90%; text-transform: uppercase; letter-spacing: 1px; }
-        .error-msg { color: #ff3b30; font-weight: bold; margin-top: 15px; font-size: 14px; min-height: 20px; }
-        
-        .game-layout { display: none; height: 100vh; flex-direction: column; }
-        .nav-header { padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .brand-corner { font-size: 24px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(45deg, #fff, var(--fifa-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .menu-tabs { display: flex; gap: 30px; margin-right: auto; margin-left: 60px; }
-        .menu-tab { background: none; border: none; color: var(--text-muted); font-size: 18px; font-weight: bold; text-transform: uppercase; cursor: pointer; padding: 5px 0; border-bottom: 3px solid transparent; transition: all 0.2s; }
-        .menu-tab.active, .menu-tab:hover { color: var(--text-light); border-bottom-color: var(--fifa-neon); }
-        
-        .main-deck { flex: 1; padding: 30px 40px; overflow-y: auto; display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
-        .fifa-tile { background: var(--fifa-card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; min-height: 180px; }
-        .fifa-tile::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--fifa-purple); }
-        .fifa-tile:hover { transform: scale(1.02); border-color: var(--fifa-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
-        .fifa-tile h2 { margin: 0 0 8px; font-size: 22px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
-        .fifa-tile p { margin: 0; color: var(--text-muted); font-size: 14px; }
-        
-        .workspace-container { display: none; padding: 30px 40px; overflow-y: auto; }
-        .workspace-panel { display: none; background: var(--fifa-card-bg); border-radius: 12px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); width: 100%; box-sizing: border-box; }
-        .workspace-panel.active { display: block; }
-        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Intex Playbook — 4v4 Plays, Playmaker, Fitness</title>
 
-        .media-workspace { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 20px; }
-        .video-box { width: 100%; max-width: 480px; height: 270px; background: #000; border: 2px solid var(--fifa-purple); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(130, 0, 255, 0.2); }
-        .video-controls-side { flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; }
-        .action-upload-btn { background: linear-gradient(90deg, var(--fifa-cyan), var(--fifa-purple)); color: #000; border: none; padding: 12px 24px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; display: inline-block; }
-    </style>
+  <!-- GSAP (for smooth SVG animations) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    /* ---------- Base / Theme ---------- */
+    :root{
+      --bg:#071021; --card:#0f1724; --accent:#1fb6ff; --muted:#9aa7b2;
+      --glass: rgba(255,255,255,0.03);
+      --success:#2dd4bf; --danger:#ef476f;
+      --max-width:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(31,182,255,0.04), transparent),
+      linear-gradient(180deg,#071021 0%, #04121a 100%);
+      color:#e6eef6; -webkit-font-smoothing:antialiased;
+    }
+    .wrap{max-width:var(--max-width);margin:28px auto;padding:18px}
+    header.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header h1{margin:0;font-size:1.4rem;letter-spacing:0.6px}
+    nav .btn{background:linear-gradient(90deg,var(--accent),#7be0ff);color:#042;padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .controls{display:flex;gap:12px;align-items:center;margin:18px 0;flex-wrap:wrap}
+    .controls select,.controls input{padding:8px;border-radius:8px;border:0;background:var(--glass);color:inherit}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:12px;cursor:pointer;box-shadow:0 8px 30px rgba(2,6,23,0.6);transition:transform .18s ease}
+    .card:hover{transform:translateY(-6px)}
+    .playboard{width:100%;height:160px;border-radius:8px;position:relative;overflow:hidden;background:#042a1f}
+    .play-title{margin-top:10px;font-weight:700}
+    .meta{color:var(--muted);font-size:0.9rem;margin-top:6px}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:60}
+    .modal.hidden{display:none}
+    .modal-content{background:var(--card);padding:18px;border-radius:12px;max-width:1000px;width:95%;max-height:92vh;overflow:auto;position:relative}
+    .close{position:absolute;right:12px;top:12px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer}
+
+    /* Play preview area */
+    #playPreview svg{width:100%;height:420px;display:block}
+    .play-meta-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .muted{color:var(--muted)}
+
+    /* Playmaker */
+    #playmakerArea{display:flex;gap:12px;flex-wrap:wrap}
+    #fieldCanvas{background:linear-gradient(180deg,#063a2b,#042a1f);border-radius:10px;box-shadow:inset 0 6px 18px rgba(0,0,0,0.6)}
+    .pm-controls{display:flex;flex-direction:column;gap:8px;min-width:220px}
+    .pm-controls input,.pm-controls select{padding:8px;border-radius:8px;border:0;background:var(--glass);color:inherit}
+
+    /* Fitness */
+    .fitness-grid{display:grid;grid-template-columns:1fr 320px;gap:12px}
+    .card .progress-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+    progress{width:100%;height:14px;border-radius:8px;overflow:hidden}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .fitness-grid{grid-template-columns:1fr}
+      #fieldCanvas{width:100%;height:320px}
+    }
+
+    /* Small helpers */
+    .muted{color:var(--muted)}
+    .pill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-weight:600}
+    .tiny{font-size:0.85rem;color:var(--muted)}
+    .video-wrap{background:#000;border-radius:8px;overflow:hidden}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:inherit;cursor:pointer}
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <header class="site-header">
+      <div>
+        <h1>Intex Playbook</h1>
+        <div class="tiny muted">4v4 plays • Trick / Passing / Running • Playmaker & Fitness</div>
+      </div>
+      <nav>
+        <button class="btn" id="open-playmaker">Create Play</button>
+        <button class="btn" id="open-fitness">Fitness & Drills</button>
+      </nav>
+    </header>
 
-    <div class="gate-container" id="gateTerminal">
-        <div class="gate-card">
-            <h1>Dans Play Book</h1>
-            <p>Enter Master Passcode to Unlock Systems</p>
-            <input type="password" class="pin-input" id="masterToken" placeholder="••••" maxlength="4">
-            <br>
-            <button class="gate-btn" onclick="verifyMasterGate()">Unlock Gateway</button>
-            <div class="error-msg" id="masterAlert"></div>
-        </div>
+    <section class="controls" aria-label="filters">
+      <label class="tiny muted">Category
+        <select id="categoryFilter" aria-label="Filter plays by category">
+          <option value="all">All</option>
+          <option value="trick">Trick Play</option>
+          <option value="pass">Passing Play</option>
+          <option value="run">Running Play</option>
+        </select>
+      </label>
+
+      <label class="tiny muted">Search
+        <input id="search" placeholder="Search plays or animation..." aria-label="Search plays" />
+      </label>
+
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn" id="downloadJSON">Download plays.json</button>
+        <button class="btn" id="importSample">Import sample videos</button>
+      </div>
+    </section>
+
+    <main>
+      <section id="playsGrid" class="grid" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <!-- Play modal -->
+  <div id="playModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="playTitle">
+    <div class="modal-content">
+      <button class="close" id="closeModal" aria-label="Close">×</button>
+      <div id="playPreview" aria-hidden="false"></div>
+      <h2 id="playTitle"></h2>
+      <div class="play-meta-row">
+        <div id="playMeta" class="muted"></div>
+        <div id="playTags" class="pill"></div>
+      </div>
+      <div style="margin-top:12px" id="videoContainer"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="submitForReview" class="btn">Submit for review</button>
+        <button id="addToLibrary" class="btn-ghost">Add to library</button>
+      </div>
     </div>
+  </div>
 
-    <div class="game-layout" id="gameDashboard">
-        <div class="nav-header">
-            <div class="brand-corner">Dans Play Book</div>
-            <div class="menu-tabs">
-                <button class="menu-tab active" onclick="showDashboardHome()">HOME</button>
-                <button class="menu-tab" onclick="openTargetModule('plays')">PLAY DICTIONARY</button>
-                <button class="menu-tab" onclick="openTargetModule('drills')">TRAINING DRILLS</button>
-                <button class="menu-tab" onclick="openTargetModule('fitness')">FITNESS MANAGEMENT</button>
-            </div>
+  <!-- Playmaker modal -->
+  <div id="playmakerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+    <div class="modal-content">
+      <button class="close" id="closePlaymaker" aria-label="Close">×</button>
+      <h2 id="pmTitle">Create a Play</h2>
+      <div id="playmakerArea">
+        <canvas id="fieldCanvas" width="800" height="480" aria-label="Play field"></canvas>
+        <div class="pm-controls" aria-hidden="false">
+          <label>Name <input id="pmName" placeholder="My Custom Play" /></label>
+          <label>Category
+            <select id="pmCategory">
+              <option value="trick">Trick Play</option>
+              <option value="pass">Passing Play</option>
+              <option value="run">Running Play</option>
+            </select>
+          </label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="pmAddOff" class="btn-ghost">Add Off Player</button>
+            <button id="pmAddDef" class="btn-ghost">Add Def Player</button>
+            <button id="pmDrawRoute" class="btn-ghost">Draw Route</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button id="pmPreview" class="btn">Preview</button>
+            <button id="pmSaveLocal" class="btn">Save Locally</button>
+            <button id="pmSubmit" class="btn">Submit for Review</button>
+          </div>
+          <div class="tiny muted">Tip: Draw routes with touch or mouse. Save locally to export JSON later.</div>
         </div>
-
-        <div class="main-deck" id="tileHubContainer">
-            <div class="fifa-tile" style="grid-column: span 4;" onclick="openTargetModule('plays')">
-                <h2 style="color: var(--fifa-cyan);">PLAY DICTIONARY</h2>
-                <p>60 Animated 4v4 Tactical Setups</p>
-            </div>
-            <div class="fifa-tile" style="grid-column: span 4;" onclick="openTargetModule('creator')">
-                <h2>CUSTOM CREATOR</h2>
-                <p>Design Routes & Pin Positions</p>
-            </div>
-            <div class="fifa-tile" style="grid-column: span 4;" onclick="openTargetModule('drills')">
-                <h2>POSITION DRILLS</h2>
-                <p>QB, WR, and Defender Matrices</p>
-            </div>
-            <div class="fifa-tile" style="grid-column: span 6;" onclick="openTargetModule('fitness')">
-                <h2>TRAINING PLAN</h2>
-                <p>2-Week Daily Conditioning Schedules</p>
-            </div>
-            <div class="fifa-tile" style="grid-column: span 6; border-left: 4px solid var(--fifa-neon);" onclick="openTargetModule('video')">
-                <h2 style="color: var(--fifa-neon);">VIDEO REPLAYS</h2>
-                <p>Film Log Vault & Practice Footage</p>
-            </div>
-        </div>
-
-        <div class="workspace-container" id="workspaceWrapper">
-            <div class="workspace-panel" id="panel-plays">
-                <button class="back-btn" onclick="showDashboardHome()">← Back to Menu</button>
-                <h2>4v4 Animated Play Library (60 Concepts Live)</h2>
-                <p>Short Yardage, Long Yardage, and Trick Play lists running on 4v4 logic boards.</p>
-            </div>
-            <div class="workspace-panel" id="panel-creator">
-                <button class="back-btn" onclick="showDashboardHome()">← Back to Menu</button>
-                <h2>Custom Play Creator Board</h2>
-                <p>Interactive drawing canvas layout matching your hand-drawn notebook guidelines.</p>
-            </div>
-            <div class="workspace-panel" id="panel-drills">
-                <button class="back-btn" onclick="showDashboardHome()">← Back to Menu</button>
-                <h2>Position Technical Drills</h2>
-                <p>Comprehensive training protocols for Quarterbacks, Wide Receivers, and Defensive Backs.</p>
-            </div>
-            <div class="workspace-panel" id="panel-fitness">
-                <button class="back-btn" onclick="showDashboardHome()">← Back to Menu</button>
-                <h2>2-Week Fitness Conditioning Track</h2>
-                <p>Automated workout tables presenting exactly 2 training drills per day.</p>
-            </div>
-            
-            <div class="workspace-panel" id="panel-video">
-                <button class="back-btn" onclick="showDashboardHome()">← Back to Menu</button>
-                <h2 style="color:var(--fifa-neon);">Practice Film Log Vault</h2>
-                <p style="margin-top:-5px; color:var(--text-muted);">Manage footage logs and track performance playback history below.</p>
-                
-                <div class="media-workspace">
-                    <div class="video-box" id="previewPlayerBox">
-                        <span style="color:var(--text-muted); font-size:14px; font-weight:bold;">[ No Active Footage Loaded ]</span>
-                    </div>
-                    <div class="video-controls-side">
-                        <button class="action-upload-btn" onclick="executeSecureVideoUpload()">Upload Game Footage</button>
-                        <h3 style="margin: 10px 0 5px 0; font-size:16px;">Active Playlist Log</h3>
-                        <p style="font-size:13px; color:var(--text-muted);" id="playlistStatus">0 Custom sessions cataloged on local grid layout.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let incorrectTokens = localStorage.getItem('token_fails') ? parseInt(localStorage.getItem('token_fails')) : 0;
-        let blockExpiration = localStorage.getItem('freeze_deadline') ? parseInt(localStorage.getItem('freeze_deadline')) : 0;
+  <!-- Fitness modal -->
+  <div id="fitnessModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="fitnessTitle">
+    <div class="modal-content">
+      <button class="close" id="closeFitness" aria-label="Close">×</button>
+      <h2 id="fitnessTitle">Fitness Tracker & Drill Templates</h2>
+      <div class="fitness-grid" style="margin-top:12px">
+        <div>
+          <div class="card">
+            <h3>Weekly Summary</h3>
+            <div class="progress-row"><div class="tiny muted">Speed</div><progress id="pSpeed" value="72" max="100"></progress><div class="tiny">72%</div></div>
+            <div class="progress-row"><div class="tiny muted">Agility</div><progress id="pAgility" value="65" max="100"></progress><div class="tiny">65%</div></div>
+            <div class="progress-row"><div class="tiny muted">Endurance</div><progress id="pEndurance" value="58" max="100"></progress><div class="tiny">58%</div></div>
+            <div class="progress-row"><div class="tiny muted">Strength</div><progress id="pStrength" value="69" max="100"></progress><div class="tiny">69%</div></div>
+          </div>
 
-        function runLockEngine() {
-            if (blockExpiration) {
-                let delta = Date.now() - blockExpiration;
-                let remaining = Math.ceil((300000 - delta) / 1000);
-                if (remaining > 0) {
-                    document.getElementById('masterToken').disabled = true;
-                    document.getElementById('masterAlert').innerText = "Sorry, try again in " + Math.ceil(remaining / 60) + " minutes.";
-                    return true;
-                } else {
-                    localStorage.removeItem('freeze_deadline');
-                    localStorage.setItem('token_fails', 0);
-                    incorrectTokens = 0;
-                    document.getElementById('masterToken').disabled = false;
-                    document.getElementById('masterAlert').innerText = "";
-                }
-            }
-            return false;
+          <div style="margin-top:12px" class="card">
+            <h3>Drill Templates</h3>
+            <div id="drillList"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h3>Active Drill</h3>
+            <div id="activeDrill">No drill running</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="startTimer" class="btn">Start</button>
+              <button id="stopTimer" class="btn-ghost">Stop</button>
+              <button id="resetTimer" class="btn-ghost">Reset</button>
+            </div>
+            <div style="margin-top:12px" class="tiny muted">Attach a demo video to any drill for quick reference.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ============================================================
+     Intex single-file implementation
+     - Replace YOUR_FORMSPREE_ENDPOINT with your Formspree endpoint
+     - GSAP MotionPathPlugin is used for SVG animations
+     - Plays are generated programmatically (60 total)
+     ============================================================ */
+
+  // ---------- Utilities ----------
+  const categories = { trick: 'Trick Play', pass: 'Passing Play', run: 'Running Play' };
+
+  function randomPalette(seed){
+    const hues = [200,160,30,10,260,120,40,320,50,180];
+    const h = hues[seed % hues.length];
+    return {primary:`hsl(${h} 85% 58%)`, secondary:`hsl(${(h+40)%360} 70% 45%)`};
+  }
+
+  // ---------- Generate 60 plays ----------
+  function generatePlays(){
+    const plays = [];
+    const types = ['trick','pass','run'];
+    let id = 1;
+    for(const t of types){
+      for(let i=0;i<20;i++){
+        const palette = randomPalette(id+i);
+        plays.push({
+          id: `p${id}`,
+          name: `${categories[t]} ${i+1}`,
+          category: t,
+          players: 8,
+          formation: '4x4',
+          routes: generateRoutes(t, i, id),
+          colorTheme: palette,
+          animationStyle: pickAnimationStyle(t, i),
+          videoUrl: null
+        });
+        id++;
+      }
+    }
+    return plays;
+  }
+
+  function generateRoutes(category, idx, seed){
+    const routes = [];
+    for(let p=0;p<4;p++){
+      const baseX = 120 + p*120;
+      const baseY = category==='run' ? 360 : 300;
+      const path = [];
+      if(category==='pass'){
+        path.push([baseX, baseY]);
+        path.push([baseX + 60 + (p*8), baseY - 120 - (p*10)]);
+        path.push([baseX + 160 + (p*12), baseY - 160 - (p*6)]);
+      } else if(category==='run'){
+        path.push([baseX, baseY]);
+        path.push([baseX + 40 + p*10, baseY - 40 - p*10]);
+        path.push([baseX + 80 + p*20, baseY - 20 + (p*6)]);
+      } else {
+        // trick: loop or fake
+        path.push([baseX, baseY]);
+        path.push([baseX + 30, baseY - 60 - p*6]);
+        path.push([baseX - 20, baseY - 80 - p*4]);
+        path.push([baseX + 120, baseY - 40 + p*8]);
+      }
+      routes.push({player:`O${p+1}`,path});
+    }
+    return routes;
+  }
+
+  function pickAnimationStyle(category, idx){
+    const styles = {
+      pass: ['arc-pass','lead-pass','lob'],
+      run: ['burst','cutback','stretch'],
+      trick: ['reverse','fake','double-move']
+    };
+    const arr = styles[category];
+    return arr[idx % arr.length];
+  }
+
+  // ---------- Render grid ----------
+  const plays = generatePlays();
+  const playsGrid = document.getElementById('playsGrid');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const searchInput = document.getElementById('search');
+
+  function renderGrid(list){
+    playsGrid.innerHTML = '';
+    list.forEach(play => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <div class="playboard" data-id="${play.id}" aria-hidden="true"></div>
+        <div class="play-title">${play.name}</div>
+        <div class="meta">${categories[play.category]} • ${play.formation}</div>
+      `;
+      playsGrid.appendChild(card);
+      renderPlayboard(card.querySelector('.playboard'), play);
+      card.addEventListener('click', ()=>openModal(play));
+      card.addEventListener('keypress', (e)=>{ if(e.key==='Enter') openModal(play); });
+    });
+  }
+
+  function renderPlayboard(container, play){
+    // create SVG preview
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS,'svg');
+    svg.setAttribute('viewBox','0 0 800 500');
+    svg.setAttribute('width','100%');
+    svg.setAttribute('height','100%');
+    svg.setAttribute('aria-hidden','true');
+
+    // field
+    const rect = document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x',0); rect.setAttribute('y',0);
+    rect.setAttribute('width',800); rect.setAttribute('height',500);
+    rect.setAttribute('fill','#063a2b');
+    svg.appendChild(rect);
+
+    // routes and animated dots
+    play.routes.forEach((r, idx) => {
+      const path = document.createElementNS(svgNS,'path');
+      const d = r.path.map((p,i)=> (i===0?`M ${p[0]} ${p[1]}`:`L ${p[0]} ${p[1]}`)).join(' ');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', play.colorTheme.primary);
+      path.setAttribute('stroke-width', 4);
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke-linecap','round');
+      path.setAttribute('id', `path-${play.id}-${idx}`);
+      svg.appendChild(path);
+
+      const dot = document.createElementNS(svgNS,'circle');
+      dot.setAttribute('r',6);
+      dot.setAttribute('fill', play.colorTheme.secondary);
+      dot.setAttribute('id', `dot-${play.id}-${idx}`);
+      svg.appendChild(dot);
+
+      // Use GSAP MotionPathPlugin to animate dot along path
+      // We'll initialize animations when modal opens for performance
+    });
+
+    container.appendChild(svg);
+  }
+
+  // ---------- Modal & preview ----------
+  const playModal = document.getElementById('playModal');
+  const playPreview = document.getElementById('playPreview');
+  const playTitle = document.getElementById('playTitle');
+  const playMeta = document.getElementById('playMeta');
+  const playTags = document.getElementById('playTags');
+  const videoContainer = document.getElementById('videoContainer');
+  const submitForReviewBtn = document.getElementById('submitForReview');
+  const addToLibraryBtn = document.getElementById('addToLibrary');
+
+  function openModal(play){
+    playTitle.textContent = play.name;
+    playMeta.textContent = `${categories[play.category]} • ${play.formation} • ${play.animationStyle}`;
+    playTags.textContent = `${play.players} players • 4v4`;
+    playPreview.innerHTML = '';
+
+    // Build a larger SVG preview (clone of small but with animation)
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS,'svg');
+    svg.setAttribute('viewBox','0 0 1000 600');
+    svg.setAttribute('width','100%');
+    svg.setAttribute('height','420');
+
+    const rect = document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x',0); rect.setAttribute('y',0);
+    rect.setAttribute('width',1000); rect.setAttribute('height',600);
+    rect.setAttribute('fill','#042a1f');
+    svg.appendChild(rect);
+
+    // draw routes and dots
+    play.routes.forEach((r, idx) => {
+      const path = document.createElementNS(svgNS,'path');
+      // scale up coordinates slightly for the larger view
+      const d = r.path.map((p,i)=> {
+        const sx = Math.round(p[0] * 1.15);
+        const sy = Math.round(p[1] * 1.15);
+        return (i===0?`M ${sx} ${sy}`:`L ${sx} ${sy}`);
+      }).join(' ');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', play.colorTheme.primary);
+      path.setAttribute('stroke-width', 6);
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke-linecap','round');
+      path.setAttribute('id', `modal-path-${play.id}-${idx}`);
+      svg.appendChild(path);
+
+      const dot = document.createElementNS(svgNS,'circle');
+      dot.setAttribute('r',8);
+      dot.setAttribute('fill', play.colorTheme.secondary);
+      dot.setAttribute('id', `modal-dot-${play.id}-${idx}`);
+      svg.appendChild(dot);
+    });
+
+    playPreview.appendChild(svg);
+
+    // Video
+    videoContainer.innerHTML = '';
+    if(play.videoUrl){
+      const vwrap = document.createElement('div');
+      vwrap.className = 'video-wrap';
+      vwrap.innerHTML = `<video controls style="width:100%;height:320px;display:block" src="${play.videoUrl}"></video>`;
+      videoContainer.appendChild(vwrap);
+    } else {
+      videoContainer.innerHTML = `<div class="tiny muted">No video attached</div>`;
+    }
+
+    // Start GSAP animations for dots
+    gsap.killTweensOf("*"); // stop previous
+    play.routes.forEach((r, idx) => {
+      const pathEl = document.getElementById(`modal-path-${play.id}-${idx}`);
+      const dotEl = document.getElementById(`modal-dot-${play.id}-${idx}`);
+      if(pathEl && dotEl){
+        // register plugin if not already
+        if(typeof gsap.registerPlugin === 'function') {
+          try { gsap.registerPlugin(MotionPathPlugin); } catch(e){}
         }
+        gsap.to(dotEl, {
+          duration: 2.2 + (idx*0.2),
+          repeat: -1,
+          ease: "power1.inOut",
+          motionPath: {
+            path: pathEl,
+            align: pathEl,
+            autoRotate: false,
+            alignOrigin: [0.5,0.5]
+          }
+        });
+      }
+    });
 
-        setInterval(runLockEngine, 1000);
-        runLockEngine();
+    playModal.classList.remove('hidden');
 
-        function verifyMasterGate() {
-            if (runLockEngine()) return;
-            let input = document.getElementById('masterToken').value.trim();
-            
-            if (input === "7109") {
-                localStorage.setItem('token_fails', 0);
-                document.getElementById('gateTerminal').style.display = 'none';
-                document.getElementById('gameDashboard').style.display = 'flex';
-                openTargetModule('drills'); 
-            } else {
-                incorrectTokens++;
-                localStorage.setItem('token_fails', incorrectTokens);
-                if (incorrectTokens >= 5) {
-                    localStorage.setItem('freeze_deadline', Date.now());
-                    runLockEngine();
-                } else {
-                    document.getElementById('masterAlert').innerText = "Incorrect Code. Attempt " + incorrectTokens + " of 5.";
-                }
-            }
-        }
+    // attach actions
+    submitForReviewBtn.onclick = ()=>submitPlayForReview(play);
+    addToLibraryBtn.onclick = ()=>addPlayToLibrary(play);
+  }
 
-        function executeSecureVideoUpload() {
-            let passPrompt = prompt("Authorization Required: Enter secondary verification passcode to activate local video channel:");
-            if (passPrompt === "7245") {
-                document.getElementById('previewPlayerBox').innerHTML = '<div style="color:var(--fifa-cyan); font-weight:bold; font-size:15px; text-shadow:0 0 8px var(--fifa-cyan);">▶ SIMULATED PRACTICE FILM PREVIEW ACTIVE</div>';
-                document.getElementById('playlistStatus').innerText = "1 Session active: practice_drive_4v4.mp4 successfully verified.";
-                alert("Upload channel authenticated. Local source loaded into preview slate layout.");
-            } else if (passPrompt !== null) {
-                alert("Access Denied. Video encryption system protected.");
-            }
-        }
+  document.getElementById('closeModal').onclick = ()=>playModal.classList.add('hidden');
 
-        function openTargetModule(modId) {
-            document.getElementById('tileHubContainer').style.display = 'none';
-            document.getElementById('workspaceWrapper').style.display = 'block';
-            document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('panel-' + modId).classList.add('active');
-            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
-        }
+  // ---------- Filters ----------
+  categoryFilter.onchange = applyFilters;
+  searchInput.oninput = applyFilters;
 
-        function showDashboardHome() {
-            document.getElementById('workspaceWrapper').style.display = 'none';
-            document.getElementById('tileHubContainer').style.display = 'grid';
-            document.querySelectorAll('.menu-tab').forEach(t => t.className = 'menu-tab');
-            document.querySelector('.menu-tabs button:first-child').className = 'menu-tab active';
-        }
-    </script>
+  function applyFilters(){
+    const cat = categoryFilter.value;
+    const q = searchInput.value.toLowerCase();
+    const filtered = plays.filter(p => (cat==='all' || p.category===cat) && (p.name.toLowerCase().includes(q) || p.animationStyle.includes(q)));
+    renderGrid(filtered);
+  }
+
+  // initial render
+  renderGrid(plays);
+
+  // ---------- Submit for review (Formspree) ----------
+  // Replace with your Formspree endpoint
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORMSPREE_ENDPOINT';
+
+  function submitPlayForReview(play){
+    // Basic client-side POST to Formspree
+    fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        play_name: play.name,
+        category: categories[play.category],
+        play_json: JSON.stringify(play)
+      })
+    }).then(res=>{
+      if(res.ok) alert('Play submitted for review. You will receive an email.');
+      else alert('Submission failed. Check your Formspree endpoint.');
+    }).catch(err=>{
+      console.error(err);
+      alert('Submission error. See console for details.');
+    });
+  }
+
+  function addPlayToLibrary(play){
+    // Save to localStorage library
+    const lib = JSON.parse(localStorage.getItem('intex_library') || '[]');
+    lib.push(play);
+    localStorage.setItem('intex_library', JSON.stringify(lib));
+    alert('Added to your local library.');
+  }
+
+  // ---------- Download plays.json ----------
+  document.getElementById('downloadJSON').onclick = ()=>{
+    const blob = new Blob([JSON.stringify(plays, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'plays.json'; document.body.appendChild(a); a.click();
+    a.remove(); URL.revokeObjectURL(url);
+  };
+
+  // ---------- Playmaker (canvas) ----------
+  const openPlaymaker = document.getElementById('open-playmaker');
+  const playmakerModal = document.getElementById('playmakerModal');
+  const closePlaymaker = document.getElementById('closePlaymaker');
+  const fieldCanvas = document.getElementById('fieldCanvas');
+  const ctx = fieldCanvas.getContext('2d');
+
+  openPlaymaker.onclick = ()=>playmakerModal.classList.remove('hidden');
+  closePlaymaker.onclick = ()=>playmakerModal.classList.add('hidden');
+
+  function drawField(){
+    ctx.clearRect(0,0,fieldCanvas.width,fieldCanvas.height);
+    // turf
+    ctx.fillStyle = '#063a2b';
+    ctx.fillRect(0,0,fieldCanvas.width,fieldCanvas.height);
+    // yard lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for(let x=60;x<fieldCanvas.width;x+=60){
+      ctx.beginPath(); ctx.moveTo(x,20); ctx.lineTo(x,fieldCanvas.height-20); ctx.stroke();
+    }
+    // center line
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.moveTo(0,fieldCanvas.height/2); ctx.lineTo(fieldCanvas.width,fieldCanvas.height/2); ctx.stroke();
+  }
+  drawField();
+
+  const pmState = {off:[],def:[],routes:[],drawing:false,currentRoute:[]};
+  const pmName = document.getElementById('pmName');
+  const pmCategory = document.getElementById('pmCategory');
+
+  document.getElementById('pmAddOff').onclick = ()=>{
+    pmState.off.push({x:100 + pmState.off.length*40, y:380, id:`O${pmState.off.length+1}`});
+    renderPM();
+  };
+  document.getElementById('pmAddDef').onclick = ()=>{
+    pmState.def.push({x:100 + pmState.def.length*40, y:120, id:`D${pmState.def.length+1}`});
+    renderPM();
+  };
+
+  function renderPM(){
+    drawField();
+    ctx.font = '12px system-ui';
+    // draw routes
+    ctx.strokeStyle = '#1fb6ff'; ctx.lineWidth = 3;
+    pmState.routes.forEach(r=>{
+      ctx.beginPath();
+      r.path.forEach((pt,i)=> i===0?ctx.moveTo(pt[0],pt[1]):ctx.lineTo(pt[0],pt[1]));
+      ctx.stroke();
+    });
+    // draw players
+    pmState.off.forEach(p=>{
+      ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(p.x,p.y,12,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#042'; ctx.fillText(p.id,p.x-10,p.y+28);
+    });
+    pmState.def.forEach(p=>{
+      ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(p.x,p.y,12,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#042'; ctx.fillText(p.id,p.x-10,p.y-18);
+    });
+  }
+
+  let drawing = false;
+  document.getElementById('pmDrawRoute').onclick = ()=> {
+    drawing = !drawing;
+    document.getElementById('pmDrawRoute').textContent = drawing ? 'Stop Drawing' : 'Draw Route';
+    if(!drawing && pmState.currentRoute.length){
+      pmState.routes.push({path: pmState.currentRoute});
+      pmState.currentRoute = [];
+      renderPM();
+    }
+  };
+
+  fieldCanvas.addEventListener('pointerdown', e=>{
+    if(!drawing) return;
+    pmState.currentRoute = [[e.offsetX,e.offsetY]];
+  });
+  fieldCanvas.addEventListener('pointermove', e=>{
+    if(!drawing || !pmState.currentRoute.length) return;
+    pmState.currentRoute.push([e.offsetX,e.offsetY]);
+    renderPM();
+    // draw current route
+    ctx.strokeStyle = '#fff';
+    ctx.beginPath();
+    pmState.currentRoute.forEach((pt,i)=> i===0?ctx.moveTo(pt[0],pt[1]):ctx.lineTo(pt[0],pt[1]));
+    ctx.stroke();
+  });
+  fieldCanvas.addEventListener('pointerup', e=>{
+    if(!drawing) return;
+    if(pmState.currentRoute.length){
+      pmState.routes.push({path: pmState.currentRoute});
+      pmState.currentRoute = [];
+      renderPM();
+    }
+  });
+
+  document.getElementById('pmSaveLocal').onclick = ()=>{
+    const name = pmName.value || 'Custom Play';
+    const category = pmCategory.value;
+    const play = {
+      id: 'custom-'+Date.now(),
+      name, category, formation:'4x4',
+      players: {off:pmState.off,def:pmState.def},
+      routes: pmState.routes
+    };
+    localStorage.setItem(play.id, JSON.stringify(play));
+    alert('Saved locally. You can export or submit for review.');
+  };
+
+  document.getElementById('pmPreview').onclick = ()=>{
+    // quick preview: open modal with constructed play
+    const name = pmName.value || 'Custom Play';
+    const category = pmCategory.value;
+    const play = {
+      id: 'custom-'+Date.now(),
+      name, category, formation:'4x4',
+      players: {off:pmState.off,def:pmState.def},
+      routes: pmState.routes,
+      colorTheme: randomPalette(Date.now()%1000),
+      animationStyle: 'custom'
+    };
+    openModal(play);
+  };
+
+  document.getElementById('pmSubmit').onclick = ()=>{
+    const name = pmName.value || 'Custom Play';
+    const category = pmCategory.value;
+    const play = {
+      id: 'custom-'+Date.now(),
+      name, category, formation:'4x4',
+      players: {off:pmState.off,def:pmState.def},
+      routes: pmState.routes
+    };
+    // POST to Formspree
+    fetch(FORMSPREE_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        play_name: play.name,
+        category,
+        play_json: JSON.stringify(play)
+      })
+    }).then(r=>{
+      if(r.ok) alert('Submitted for review');
+      else alert('Submission failed');
+    }).catch(e=>{
+      console.error(e); alert('Submission error');
+    });
+  };
+
+  // ---------- Fitness & drills ----------
+  const openFitness = document.getElementById('open-fitness');
+  const fitnessModal = document.getElementById('fitnessModal');
+  const closeFitness = document.getElementById('closeFitness');
+  const drillList = document.getElementById('drillList');
+  const activeDrill = document.getElementById('activeDrill');
+  const startTimer = document.getElementById('startTimer');
+  const stopTimer = document.getElementById('stopTimer');
+  const resetTimer = document.getElementById('resetTimer');
+
+  openFitness.onclick = ()=>fitnessModal.classList.remove('hidden');
+  closeFitness.onclick = ()=>fitnessModal.classList.add('hidden');
+
+  const sample = {
+    weekly: {speed:72,agility:65,endurance:58,strength:69},
+    drills: [
+      {name:'Cone Shuttle',duration:6,sets:4,video:null},
+      {name:'7-on-7 Passing',duration:10,sets:3,video:null},
+      {name:'Sprint Intervals',duration:8,sets:5,video:null}
+    ]
+  };
+
+  function renderFitness(){
+    document.getElementById('pSpeed').value = sample.weekly.speed;
+    document.getElementById('pAgility').value = sample.weekly.agility;
+    document.getElementById('pEndurance').value = sample.weekly.endurance;
+    document.getElementById('pStrength').value = sample.weekly.strength;
+    drillList.innerHTML = '';
+    sample.drills.forEach((d, i)=>{
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.style.marginBottom = '8px';
+      el.innerHTML = `<strong>${d.name}</strong><div class="tiny muted">Duration: ${d.duration} min • Sets: ${d.sets}</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn-ghost attach" data-i="${i}">Attach Demo</button>
+          <button class="btn" data-i="${i}">Start Drill</button>
+        </div>`;
+      drillList.appendChild(el);
+    });
+
+    // attach handlers
+    document.querySelectorAll('.attach').forEach(btn=>{
+      btn.onclick = (e)=>{
+        const i = e.currentTarget.dataset.i;
+        const url = prompt('Paste demo video URL (public link):');
+        if(url) { sample.drills[i].video = url; alert('Demo attached'); }
+      };
+    });
+    document.querySelectorAll('.card .btn').forEach(btn=>{
+      btn.onclick = (e)=>{
+        const i = e.currentTarget.dataset.i;
+        startDrill(sample.drills[i]);
+      };
+    });
+  }
+  renderFitness();
+
+  // simple timer
+  let timer = null;
+  let remaining = 0;
+  function startDrill(drill){
+    remaining = drill.duration * 60;
+    activeDrill.textContent = `Running: ${drill.name} • ${drill.sets} sets`;
+    if(timer) clearInterval(timer);
+    timer = setInterval(()=>{
+      remaining--;
+      const mm = Math.floor(remaining/60);
+      const ss = remaining % 60;
+      activeDrill.textContent = `Running: ${drill.name} • ${mm}:${ss.toString().padStart(2,'0')}`;
+      if(remaining<=0){ clearInterval(timer); timer=null; activeDrill.textContent = `Completed: ${drill.name}`; }
+    },1000);
+  }
+  startTimer.onclick = ()=>{ if(!timer) alert('Start a drill from the templates'); };
+  stopTimer.onclick = ()=>{ if(timer){ clearInterval(timer); timer=null; activeDrill.textContent='Stopped'; } };
+  resetTimer.onclick = ()=>{ if(timer){ clearInterval(timer); timer=null; activeDrill.textContent='Reset'; } };
+
+  // ---------- Import sample videos (demo) ----------
+  document.getElementById('importSample').onclick = ()=>{
+    // For demo only: attach a sample video URL to a few plays
+    const sampleUrl = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+    plays.slice(0,6).forEach((p,i)=> p.videoUrl = sampleUrl);
+    alert('Sample videos attached to first 6 plays for demo.');
+    applyFilters();
+  };
+
+  // ---------- Simple moderation workflow notes ----------
+  // When a user submits via Formspree you'll receive the play JSON in email.
+  // To accept a play into the official library:
+  // 1) Download the JSON from the email.
+  // 2) Add it to your repo's data/plays.json or push via a serverless endpoint.
+  // 3) Re-deploy the site (GitHub Pages or Netlify) to include the new play.
+
+  // ---------- Accessibility small improvements ----------
+  // Add keyboard focus styles
+  document.addEventListener('keydown', (e)=> {
+    if(e.key === 'Escape'){
+      document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden'));
+    }
+  });
+
+  // ---------- End of file ----------
+  </script>
+
+  <!-- Footer: Next steps & deployment notes -->
+  <div style="max-width:var(--max-width);margin:18px auto;color:var(--muted);font-size:0.95rem;padding:0 18px">
+    <h3 style="color:#fff">Next steps to make this production-ready</h3>
+    <ul>
+      <li><strong>Replace Formspree endpoint</strong> with your form endpoint so submissions reach your email. Formspree provides a simple POST endpoint for client-side forms. </li>
+      <li><strong>Use a serverless backend</strong> (Netlify Functions, Vercel Serverless, or a small Node/Express endpoint) to validate submissions, store play JSON, and send moderated emails. This is more secure than client-only email. </li>
+      <li><strong>Host videos externally</strong> (Cloudinary, S3, or Vimeo) and store URLs in play JSON. This avoids large repo sizes and improves streaming performance.</li>
+      <li><strong>Enable GitHub Pages or Netlify</strong> for hosting. For GitHub Pages, push this file to your repo root and enable Pages in repo settings. Netlify/Vercel provide easier serverless function integration. </li>
+      <li><strong>Polish animations</strong> by tuning GSAP easing and durations; consider pre-rendered SVG thumbnails for faster gallery load. GSAP MotionPathPlugin is the recommended approach for reliable SVG path animations. </li>
+      <li><strong>Moderation flow</strong>: when you receive a submission email, download the JSON, review, then add to `plays` data and redeploy. For automated moderation, add a serverless admin panel with authentication (Firebase Auth or Netlify Identity).</li>
+      <li><strong>Optional improvements</strong>: user accounts, play versioning, export to PDF/SVG, analytics for play usage, and unit tests for play JSON validation.</li>
+    </ul>
+    <div style="margin-top:12px" class="tiny muted">If you want, I can now:
+      <ol>
+        <li>Generate a full `plays.json` file with all 60 plays and unique animation tags.</li>
+        <li>Convert the GSAP animations to a more advanced timeline with staggered choreography.</li>
+        <li>Provide a Netlify Function example that receives submissions and emails you via SendGrid.</li>
+      </ol>
+    </div>
+  </div>
 </body>
 </html>
