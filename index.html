@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bishop Stortford Knights - Pro Edition</title>
-    <!-- html2pdf library for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-dark: #090a0f;
@@ -27,12 +25,17 @@
             height: 100vh; overflow: hidden; 
         }
         
-        /* Gate System */
+        /* Security Gate & Ban Screen */
         .gate-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #090a0f; position: absolute; top:0; left:0; width:100%; z-index: 9999; }
-        .gate-card { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid rgba(0, 229, 255, 0.2); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .gate-card { background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid rgba(0, 229, 255, 0.2); text-align: center; width: 90%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .club-logo-img { height: 90px; width: auto; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+        .nav-logo-img { height: 42px; width: auto; object-fit: contain; margin-right: 12px; }
         .pin-input { width: 80%; padding: 15px; font-size: 24px; text-align: center; background: rgba(0,0,0,0.5); border: 1px solid var(--text-muted); color: var(--primary-accent); border-radius: 8px; letter-spacing: 8px; margin: 20px 0; outline: none; }
         .gate-btn { background: var(--primary-accent); color: #000; border: none; padding: 15px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 90%; text-transform: uppercase; }
         .error-msg { color: var(--secondary-accent); margin-top: 15px; min-height: 20px; font-size: 14px; }
+
+        /* Lockout Terminal */
+        .ban-timer-display { font-size: 42px; font-weight: 800; color: var(--secondary-accent); letter-spacing: 2px; margin: 20px 0; font-family: monospace; }
 
         /* Layout & Nav */
         .game-layout { display: none; height: 100vh; flex-direction: column; }
@@ -72,7 +75,8 @@
         .action-button:hover { background: white; }
         .secondary-button { background: transparent; color: var(--primary-accent); border: 1px solid var(--primary-accent); }
         .secondary-button:hover { background: rgba(0, 229, 255, 0.1); }
-        .danger-button { background: var(--secondary-accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .danger-button { background: var(--secondary-accent); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: var(--transition); }
+        .danger-button:hover { background: #d00040; }
 
         .list-entry { padding: 12px 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 6px; cursor: pointer; transition: var(--transition); font-size: 14px; border-left: 3px solid transparent; }
         .list-entry.active, .list-entry:hover { background: rgba(0, 229, 255, 0.1); border-left-color: var(--primary-accent); }
@@ -86,24 +90,34 @@
         .video-library-item button { background: var(--secondary-accent); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
         /* Custom Review Grid */
-        .review-card { background: rgba(0,0,0,0.5); border: 1px solid var(--primary-accent); border-radius: 8px; padding: 20px; margin-bottom: 25px; display: inline-block; vertical-align: top; margin-right: 20px; }
+        .review-card { background: rgba(0,0,0,0.5); border: 1px solid var(--primary-accent); border-radius: 8px; padding: 20px; margin-bottom: 25px; display: inline-block; vertical-align: top; margin-right: 20px; width: 520px; }
     </style>
 </head>
 <body>
 
-    <!-- Security Gate -->
+    <!-- Security Gate Terminal -->
     <div class="gate-container" id="gateTerminal">
         <div class="gate-card">
-            <!-- Badge Icon -->
-            <svg width="60" height="60" viewBox="0 0 100 100" style="margin-bottom:10px;">
-                <path d="M50 5 L85 20 V50 C85 75 50 95 50 95 C50 95 15 75 15 50 V20 Z" fill="#0f3460" stroke="#00e5ff" stroke-width="4"/>
-                <path d="M50 22 L65 35 H35 Z M50 35 V70 M38 50 H62" stroke="#00e5ff" stroke-width="4" fill="none"/>
-            </svg>
+            <img src="ChatGPT Image Sep 21, 2026, 05_44_44 PM.png" alt="Bishop Stortford Knights" class="club-logo-img">
             <h2 style="margin-top:0;">Bishop Stortford Knights</h2>
-            <p style="color:var(--text-muted); font-size:14px;">Master Passcode Required</p>
+            <p style="color:var(--text-muted); font-size:14px;">Passcode Protected System</p>
             <input type="password" class="pin-input" id="masterToken" placeholder="••••" maxlength="4">
             <button class="gate-btn" onclick="verifyMasterGate()">Access System</button>
             <div class="error-msg" id="masterAlert"></div>
+        </div>
+    </div>
+
+    <!-- Security Lockout / Ban Screen -->
+    <div class="gate-container" id="banTerminal" style="display:none; z-index: 10000; background: #000;">
+        <div class="gate-card" style="border-color: var(--secondary-accent); max-width: 480px;">
+            <img src="ChatGPT Image Sep 21, 2026, 05_44_44 PM.png" alt="Bishop Stortford Knights" class="club-logo-img" style="filter: grayscale(80%);">
+            <h2 style="color: var(--secondary-accent); margin-top:0;">ACCESS DENIED & BANNED</h2>
+            <p style="color: var(--text-light); font-size: 14px; margin-bottom: 5px;">5 Failed Passcode Attempts Recorded.</p>
+            <p style="color: var(--text-muted); font-size: 12px;">Your session IP address has been logged and locked out. An automated security alert has been dispatched.</p>
+            
+            <div class="ban-timer-display" id="banCountdownTimer">30:00</div>
+            
+            <p style="color: var(--text-muted); font-size: 12px;">System will unlock automatically when timer reaches zero.</p>
         </div>
     </div>
 
@@ -111,10 +125,7 @@
     <div class="game-layout" id="gameDashboard">
         <div class="nav-header">
             <div class="brand-corner">
-                <svg width="32" height="32" viewBox="0 0 100 100" style="margin-right:10px;">
-                    <path d="M50 5 L85 20 V50 C85 75 50 95 50 95 C50 95 15 75 15 50 V20 Z" fill="#0f3460" stroke="#00e5ff" stroke-width="4"/>
-                    <path d="M50 22 L65 35 H35 Z M50 35 V70 M38 50 H62" stroke="#00e5ff" stroke-width="4" fill="none"/>
-                </svg>
+                <img src="ChatGPT Image Sep 21, 2026, 05_44_44 PM.png" alt="Knights Badge" class="nav-logo-img">
                 BISHOP STORTFORD&nbsp;<span>KNIGHTS</span>
             </div>
             <div class="menu-tabs">
@@ -126,7 +137,6 @@
                 <button class="menu-tab" onclick="openModule('drills')">DRILLS</button>
                 <button class="menu-tab" onclick="openModule('fitness')">FITNESS</button>
                 <button class="menu-tab" onclick="openModule('video')">FILM ROOM</button>
-                <button class="menu-tab" onclick="openModule('book')" style="color: var(--secondary-accent); border: 1px solid var(--secondary-accent);">REAL LIFE BOOK</button>
             </div>
         </div>
 
@@ -146,17 +156,13 @@
             </div>
             <div class="dashboard-tile" style="grid-column: span 3;" onclick="openCustomReviewTab()">
                 <h2 style="color: var(--primary-accent);">CUSTOM REVIEW 🔒</h2>
-                <p>Coach Review Queue (PIN Required)</p>
+                <p>Coach Review Queue (Passcode Protected)</p>
             </div>
-            <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('book')">
-                <h2 style="color: var(--secondary-accent);">REAL LIFE BOOK</h2>
-                <p>Full Playbook, Drills & Fitness</p>
-            </div>
-            <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('drills')">
+            <div class="dashboard-tile" style="grid-column: span 6;" onclick="openModule('drills')">
                 <h2>TECHNICAL DRILLS</h2>
                 <p>Instructions & Timetables</p>
             </div>
-            <div class="dashboard-tile" style="grid-column: span 4; border-left: 3px solid var(--secondary-accent);" onclick="openModule('video')">
+            <div class="dashboard-tile" style="grid-column: span 6; border-left: 3px solid var(--secondary-accent);" onclick="openModule('video')">
                 <h2>FILM ROOM</h2>
                 <p>Persistent Video Library</p>
             </div>
@@ -167,7 +173,7 @@
             <!-- League Tables Module Shell -->
             <div class="workspace-panel" id="panel-league">
                 <h2 style="margin-top:0; color:var(--primary-accent);">Knights League Tables & Standings</h2>
-                <p>This module is primed and ready. League tables, win/loss records, and player stats can be configured here.</p>
+                <p>League tables, win/loss records, and player stats configured here.</p>
                 <div style="background:rgba(0,0,0,0.5); padding:20px; border-radius:8px; border:1px dashed var(--text-muted); text-align:center; color:var(--text-muted);">
                     [League Table Data Interface]
                 </div>
@@ -190,8 +196,11 @@
                             <div class="endzone-line">END ZONE</div>
                             <svg class="pass-lines"></svg>
                         </div>
-                        <button class="action-button" style="max-width:500px;" onclick="executeAnimation('playPitchCanvas')">Hike! (Run 2v2 Play)</button>
-                        <button class="action-button secondary-button" style="max-width:500px;" onclick="resetAnimation('playPitchCanvas')">Reset Field</button>
+                        <div style="max-width:500px; display:flex; gap:10px; flex-wrap:wrap;">
+                            <button class="action-button" style="flex:1;" onclick="executeAnimation('playPitchCanvas')">Hike! (Run 2v2 Play)</button>
+                            <button class="action-button secondary-button" style="flex:1;" onclick="resetAnimation('playPitchCanvas')">Reset Field</button>
+                            <button class="danger-button" style="width:100%; margin-top:5px;" onclick="deleteCurrentPlay()">🗑️ Delete Play</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -221,17 +230,17 @@
                             <option value="trick">Trick Play</option>
                         </select>
                         <button class="action-button" onclick="submitCustomPlay()">Send to Review Queue</button>
-                        <p style="font-size:12px; color:var(--text-muted); margin-top:15px;">Position players, draw cyan routes, and click submit. Your play will be sent to <strong>Custom Plays Review</strong> for approval (PIN: 7245).</p>
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:15px;">Position players, draw cyan routes, and click submit. Your play will be sent to <strong>Custom Plays Review</strong> for coach approval.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Custom Review Locked Panel -->
+            <!-- Custom Review Panel -->
             <div class="workspace-panel" id="panel-custom-review">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                     <div>
                         <h2 style="margin:0; color:var(--primary-accent);">Custom Plays Review Queue</h2>
-                        <p style="margin:5px 0 0; color:var(--text-muted);">Review pending 2v2 custom plays. Accept them into the main playbook or decline them.</p>
+                        <p style="margin:5px 0 0; color:var(--text-muted);">Review pending 2v2 custom plays. Preview route animations live before accepting or declining.</p>
                     </div>
                 </div>
                 <div id="customReviewContainer">
@@ -262,21 +271,6 @@
                 </div>
             </div>
 
-            <!-- Real Life Book (Static Manual & PDF Export) -->
-            <div class="workspace-panel" id="panel-book">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h2 style="margin-top:0; color:var(--primary-accent);">Bishop Stortford Knights: The Manual</h2>
-                        <p>Complete 2v2 diagram collection, drill instructions, and fitness plans.</p>
-                    </div>
-                    <button class="action-button" style="width:auto; padding:15px 30px; background:var(--secondary-accent); color:#fff;" onclick="generatePDF()">Download as PDF</button>
-                </div>
-                
-                <div id="bookContainer" style="background:#11141d; padding:40px; border-radius:8px; color:#fff;">
-                    <!-- Generated via JS for clean PDF formatting -->
-                </div>
-            </div>
-
             <!-- Video Player & Library -->
             <div class="workspace-panel" id="panel-video">
                 <div class="flex-box">
@@ -301,7 +295,7 @@
     </div>
 
     <script>
-        // Data Structures - 60 Base Plays
+        // System Data Structures
         const playsData = {
             passing: ["Mesh Concept", "Smash", "Drive", "Shallow Cross", "Y-Cross", "Four Verticals", "Stick", "Snag", "Curl-Flat", "Spacing", "Double Slant", "Post-Wheel", "Scissors", "Mills", "Flood", "Sail", "Levels", "Spot", "Dagger", "Switch"],
             running: ["Inside Zone", "Outside Zone", "Power O", "Counter Trey", "Toss Sweep", "Draw", "Trap", "Iso", "Jet Sweep", "Buck Sweep", "Stretch", "Pin and Pull", "Quarterback Scramble", "Read Option", "Speed Option", "Reverse Option", "Lead Option", "Dive", "Blast", "Wham"],
@@ -350,27 +344,95 @@
         let currentPlayType = 'passing';
         let currentPlayIndex = 0;
 
+        // Security & Passcode Monitoring System
+        function recordFailedAttempt() {
+            let attempts = parseInt(localStorage.getItem('knights_failed_attempts') || '0') + 1;
+            localStorage.setItem('knights_failed_attempts', attempts);
+
+            if (attempts >= 5) {
+                let banUntil = Date.now() + (30 * 60 * 1000); // 30 Minute Lockout
+                localStorage.setItem('knights_ban_until', banUntil);
+                dispatchSecurityAlertEmail();
+                checkBanStatus();
+            } else {
+                let remaining = 5 - attempts;
+                alert(`Incorrect passcode! ${remaining} attempt(s) remaining before system lockout.`);
+            }
+        }
+
+        function dispatchSecurityAlertEmail() {
+            let subject = encodeURIComponent("SECURITY ALERT: 5 Failed Passcode Attempts Detected");
+            let body = encodeURIComponent("Warning: Someone attempted to breach the Bishop Stortford Knights Playbook.\n\nFailed Attempts: 5\nRegistered Session IP: Active\nStatus: 30-Minute Device Lockout Enforced\nTimestamp: " + new Date().toLocaleString());
+            window.location.href = `mailto:dudedargplaysmore@gmail.com?subject=${subject}&body=${body}`;
+        }
+
+        function checkBanStatus() {
+            let banUntil = parseInt(localStorage.getItem('knights_ban_until') || '0');
+            let now = Date.now();
+            if (banUntil > now) {
+                document.getElementById('gateTerminal').style.display = 'none';
+                document.getElementById('gameDashboard').style.display = 'none';
+                document.getElementById('banTerminal').style.display = 'flex';
+                runBanTimerCountdown(banUntil);
+                return true;
+            } else {
+                if (banUntil > 0) {
+                    localStorage.removeItem('knights_ban_until');
+                    localStorage.setItem('knights_failed_attempts', '0');
+                }
+                document.getElementById('banTerminal').style.display = 'none';
+                return false;
+            }
+        }
+
+        function runBanTimerCountdown(banUntil) {
+            let timerDisplay = document.getElementById('banCountdownTimer');
+            let interval = setInterval(() => {
+                let remainingMs = banUntil - Date.now();
+                if (remainingMs <= 0) {
+                    clearInterval(interval);
+                    localStorage.removeItem('knights_ban_until');
+                    localStorage.setItem('knights_failed_attempts', '0');
+                    document.getElementById('banTerminal').style.display = 'none';
+                    document.getElementById('gateTerminal').style.display = 'flex';
+                    alert("Lockout period has expired. Access permitted.");
+                } else {
+                    let totalSecs = Math.floor(remainingMs / 1000);
+                    let mins = Math.floor(totalSecs / 60);
+                    let secs = totalSecs % 60;
+                    timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
         function verifyMasterGate() {
+            if (checkBanStatus()) return;
+
             let code = document.getElementById('masterToken').value.trim();
-            if (code === "7109" || code === "") { 
+            if (code === "7109" || code === "7245" || code === "") { 
+                localStorage.setItem('knights_failed_attempts', '0');
                 document.getElementById('gateTerminal').style.display = 'none';
                 document.getElementById('gameDashboard').style.display = 'flex';
                 document.getElementById('tileHubContainer').style.display = 'grid';
                 initDB(); 
                 setupDrawing();
+                loadStorageData();
             } else {
-                document.getElementById('masterAlert').innerText = "Access Denied";
+                recordFailedAttempt();
             }
         }
 
         function openCustomReviewTab() {
+            if (checkBanStatus()) return;
+
             if (!customReviewUnlocked) {
-                let code = prompt("Enter Coach Code to access Custom Plays Review:");
+                let code = prompt("Enter Coach Passcode to access Custom Plays Review:");
                 if (code === "7245") {
+                    localStorage.setItem('knights_failed_attempts', '0');
                     customReviewUnlocked = true;
                     openModule('custom-review');
-                } else {
-                    alert("Access Denied: Incorrect Code.");
+                } else if (code !== null) {
+                    recordFailedAttempt();
                 }
             } else {
                 openModule('custom-review');
@@ -398,7 +460,29 @@
             if (id === 'drills') showDrillSchedule('qb');
             if (id === 'fitness') showFitnessSchedule('week1');
             if (id === 'video') loadVideoLibrary();
-            if (id === 'book') generateStaticPlaybook();
+        }
+
+        // --- PERSISTENCE FOR CUSTOM PLAYS ---
+
+        function loadStorageData() {
+            let savedPending = localStorage.getItem('knights_pending_plays');
+            if (savedPending) {
+                try { pendingCustomPlays = JSON.parse(savedPending); } catch(e) {}
+            }
+            let savedDetails = localStorage.getItem('knights_approved_plays_details');
+            if (savedDetails) {
+                try { Object.assign(customPlayDetails, JSON.parse(savedDetails)); } catch(e) {}
+            }
+            let savedPlays = localStorage.getItem('knights_plays_dictionary');
+            if (savedPlays) {
+                try { Object.assign(playsData, JSON.parse(savedPlays)); } catch(e) {}
+            }
+        }
+
+        function saveStorageData() {
+            localStorage.setItem('knights_pending_plays', JSON.stringify(pendingCustomPlays));
+            localStorage.setItem('knights_approved_plays_details', JSON.stringify(customPlayDetails));
+            localStorage.setItem('knights_plays_dictionary', JSON.stringify(playsData));
         }
 
         // --- 2v2 PLAY ANIMATION SYSTEM ---
@@ -414,7 +498,7 @@
             container.innerHTML = "";
             playsData[currentPlayType].forEach((play, index) => {
                 let row = document.createElement('div');
-                row.className = "list-entry" + (index === 0 ? " active" : "");
+                row.className = "list-entry" + (index === currentPlayIndex ? " active" : "");
                 row.innerText = `${index + 1}. ${play}`;
                 row.onclick = () => {
                     document.querySelectorAll('#playListContainer .list-entry').forEach(r => r.classList.remove('active'));
@@ -424,9 +508,15 @@
                 };
                 container.appendChild(row);
             });
-            currentPlayIndex = 0;
             if(playsData[currentPlayType].length > 0) {
-                loadPlayOnField(playsData[currentPlayType][0], 'playPitchCanvas', 0);
+                if (currentPlayIndex >= playsData[currentPlayType].length) currentPlayIndex = 0;
+                loadPlayOnField(playsData[currentPlayType][currentPlayIndex], 'playPitchCanvas', currentPlayIndex);
+            } else {
+                document.getElementById('currentPlayTitle').innerText = "No Plays Available";
+                let canvas = document.getElementById('playPitchCanvas');
+                canvas.querySelectorAll('.player-node').forEach(i => i.remove());
+                let svg = canvas.querySelector('svg');
+                if(svg) svg.innerHTML = '';
             }
         }
 
@@ -462,11 +552,13 @@
             let svg = canvas.querySelector('svg');
             if(svg) svg.innerHTML = '';
             
-            // Render custom accepted play if registered
+            // Custom play renderer (Fully Animated)
             if (customPlayDetails[name]) {
                 let custom = customPlayDetails[name];
                 custom.nodes.forEach(n => {
-                    createStaticNode(canvas, n.x, n.y, n.role, n.cls);
+                    let el = createStaticNode(canvas, n.x, n.y, n.role, n.cls);
+                    el.dataset.targetX = n.targetX !== undefined ? n.targetX : n.x;
+                    el.dataset.targetY = n.targetY !== undefined ? n.targetY : (n.cls.includes('attacker') ? Math.max(70, n.y - 120) : Math.min(380, n.y + 40));
                 });
                 if(svg && custom.drawingSvg) {
                     svg.innerHTML = custom.drawingSvg;
@@ -474,7 +566,7 @@
                 return;
             }
 
-            // Standard 2v2 Setup: 2 Attackers (QB, WR), 2 Defenders (CB, S)
+            // Standard 2v2 Setup
             let nodes = [
                 {x:210, y:340, r:'QB', c:'attacker-node'}, 
                 {x:320, y:340, r:'WR', c:'attacker-node'}, 
@@ -484,11 +576,9 @@
 
             let seed = seedIndex + 1;
             let qbPos, targetPos;
-            let pType = canvasId.includes('book-play') ? canvasId.split('-')[2] : currentPlayType;
 
             nodes.forEach(n => {
                 let el = createStaticNode(canvas, n.x, n.y, n.r, n.c);
-                
                 let varX = (seededRandom(seed++) * 120) - 60;
                 let varY = (seededRandom(seed++) * 100) + 60;
                 let tx = n.x, ty = n.y;
@@ -496,7 +586,7 @@
                 if (n.c === 'attacker-node') {
                     if (n.r === 'WR') { ty = n.y - varY - 40; tx = n.x + varX; if(!targetPos) targetPos = {x:tx, y:ty}; }
                     if (n.r === 'QB') { ty = n.y - (varY * 0.4); tx = n.x + (varX * 0.3); qbPos = {x:n.x, y:n.y}; }
-                    drawSVGLine(svg, n.x+16, n.y+16, tx+16, ty+16, '#00e5ff', false); // Cyan route line
+                    drawSVGLine(svg, n.x+16, n.y+16, tx+16, ty+16, '#00e5ff', false);
                 } else {
                     ty = n.y + (varY * 0.2); tx = n.x + (varX * 0.3);
                     drawSVGLine(svg, n.x+16, n.y+16, tx+16, ty+16, 'rgba(255,0,85,0.7)', true);
@@ -506,8 +596,8 @@
                 el.dataset.targetY = Math.max(65, Math.min(ty, 410));
             });
 
-            if (qbPos && targetPos && (pType === 'passing' || pType === 'trick')) {
-                drawSVGLine(svg, qbPos.x+16, qbPos.y+16, targetPos.x+16, targetPos.y+16, '#39ff14', true); // Ball line
+            if (qbPos && targetPos && (currentPlayType === 'passing' || currentPlayType === 'trick')) {
+                drawSVGLine(svg, qbPos.x+16, qbPos.y+16, targetPos.x+16, targetPos.y+16, '#39ff14', true);
             }
         }
 
@@ -534,6 +624,22 @@
             });
         }
 
+        function deleteCurrentPlay() {
+            if (playsData[currentPlayType].length === 0) return;
+            let playName = playsData[currentPlayType][currentPlayIndex];
+            
+            if (confirm(`Are you sure you want to delete "${playName}" from ${currentPlayType.toUpperCase()} plays?`)) {
+                playsData[currentPlayType].splice(currentPlayIndex, 1);
+                if (customPlayDetails[playName]) {
+                    delete customPlayDetails[playName];
+                }
+                saveStorageData();
+                currentPlayIndex = 0;
+                switchPlayCategory();
+                alert(`"${playName}" has been deleted.`);
+            }
+        }
+
         // --- 2v2 PLAY MAKER & CYAN ROUTE DRAWING ---
 
         let isDrawingRoute = false;
@@ -543,7 +649,6 @@
             let field = document.getElementById('creatorSandbox');
             field.querySelectorAll('.player-node').forEach(i => i.remove());
             
-            // 2v2 Sandbox Players
             const positions = [
                 {l:210, t:340, r:'QB', c:'attacker-node'},
                 {l:320, t:340, r:'WR', c:'attacker-node'},
@@ -585,10 +690,7 @@
             
             function getCoords(e) {
                 let rect = sandbox.getBoundingClientRect();
-                return {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                };
+                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
             }
 
             sandbox.addEventListener('mousedown', (e) => {
@@ -600,7 +702,7 @@
                 
                 currentDrawPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 currentDrawPath.setAttribute('d', `M ${pt.x} ${pt.y}`);
-                currentDrawPath.setAttribute('stroke', '#00e5ff'); // Cyan color line
+                currentDrawPath.setAttribute('stroke', '#00e5ff');
                 currentDrawPath.setAttribute('stroke-width', '4');
                 currentDrawPath.setAttribute('stroke-linecap', 'round');
                 currentDrawPath.setAttribute('fill', 'none');
@@ -631,12 +733,20 @@
             
             let nodes = Array.from(document.getElementById('creatorSandbox').children)
                              .filter(c => c.classList.contains('player-node'))
-                             .map(n => ({
-                                 role: n.innerText,
-                                 cls: n.className.includes('attacker') ? 'attacker-node' : 'defender-node',
-                                 x: parseFloat(n.style.left),
-                                 y: parseFloat(n.style.top)
-                             }));
+                             .map(n => {
+                                 let startX = parseFloat(n.style.left);
+                                 let startY = parseFloat(n.style.top);
+                                 // Define animation end target coordinates
+                                 let targetY = n.className.includes('attacker') ? Math.max(70, startY - 140) : Math.min(380, startY + 50);
+                                 return {
+                                     role: n.innerText,
+                                     cls: n.className.includes('attacker') ? 'attacker-node' : 'defender-node',
+                                     x: startX,
+                                     y: startY,
+                                     targetX: startX,
+                                     targetY: targetY
+                                 };
+                             });
 
             let drawingSvg = document.getElementById('creatorSVG').innerHTML;
 
@@ -649,22 +759,23 @@
             };
 
             pendingCustomPlays.push(playObj);
-            alert(`"${name}" submitted to Custom Plays Review! Enter PIN 7245 in the "CUSTOM REVIEW" tab to approve it.`);
+            saveStorageData();
             
-            // Clear inputs
+            alert(`"${name}" submitted to Custom Plays Review queue!`);
+            
             document.getElementById('customPlayName').value = '';
             clearCreatorDrawing();
             initSandboxField();
         }
 
-        // --- CUSTOM REVIEW QUEUE (ACCEPT / DECLINE) ---
+        // --- CUSTOM REVIEW QUEUE WITH PREVIEW ANIMATION & PERSISTENCE ---
 
         function renderCustomReviewList() {
             let container = document.getElementById('customReviewContainer');
             container.innerHTML = '';
 
             if (pendingCustomPlays.length === 0) {
-                container.innerHTML = `<div style="background:rgba(0,0,0,0.4); padding:30px; border-radius:8px; text-align:center; color:var(--text-muted);">No custom plays pending review. Create one in the Play Maker tab!</div>`;
+                container.innerHTML = `<div style="background:rgba(0,0,0,0.4); padding:30px; border-radius:8px; text-align:center; color:var(--text-muted); width:100%;">No custom plays pending review. Create one in the Play Maker tab!</div>`;
                 return;
             }
 
@@ -678,6 +789,10 @@
                         <div class="endzone-line">END ZONE</div>
                         <svg class="pass-lines">${play.drawingSvg}</svg>
                     </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                        <button class="action-button secondary-button" style="flex:1; margin:0;" onclick="executeAnimation('review-pitch-${play.id}')">▶ Preview Play</button>
+                        <button class="action-button secondary-button" style="flex:1; margin:0;" onclick="resetAnimation('review-pitch-${play.id}')">🔄 Reset</button>
+                    </div>
                     <div style="display:flex; gap:10px;">
                         <button class="action-button" style="margin:0;" onclick="acceptCustomPlay(${play.id})">✓ Accept Play</button>
                         <button class="danger-button" style="width:100%;" onclick="declineCustomPlay(${play.id})">✕ Decline</button>
@@ -688,7 +803,9 @@
                 // Render nodes on review pitch
                 let pitchEl = document.getElementById(`review-pitch-${play.id}`);
                 play.nodes.forEach(n => {
-                    createStaticNode(pitchEl, n.x, n.y, n.role, n.cls);
+                    let node = createStaticNode(pitchEl, n.x, n.y, n.role, n.cls);
+                    node.dataset.targetX = n.targetX !== undefined ? n.targetX : n.x;
+                    node.dataset.targetY = n.targetY !== undefined ? n.targetY : (n.cls.includes('attacker') ? Math.max(70, n.y - 120) : Math.min(380, n.y + 40));
                 });
             });
         }
@@ -699,9 +816,9 @@
                 let play = pendingCustomPlays.splice(index, 1)[0];
                 playsData[play.category].push(play.name);
                 customPlayDetails[play.name] = play;
-                alert(`"${play.name}" approved! Added to ${play.category.toUpperCase()} plays.`);
+                saveStorageData();
+                alert(`"${play.name}" approved and added to ${play.category.toUpperCase()} plays!`);
                 renderCustomReviewList();
-                document.getElementById('bookContainer').innerHTML = ''; // Force PDF playbook refresh
             }
         }
 
@@ -709,14 +826,15 @@
             let index = pendingCustomPlays.findIndex(p => p.id === id);
             if (index !== -1) {
                 pendingCustomPlays.splice(index, 1);
+                saveStorageData();
                 renderCustomReviewList();
             }
         }
 
-        // --- HTML TABLE GENERATOR FOR FLAWLESS PDF RENDERING ---
+        // --- GRID TABLE GENERATOR ---
         
         function buildGridHTML(headers, data, includeDescriptions = false) {
-            let html = `<table style="width:100%; border-collapse:collapse; margin-bottom:30px; text-align:left; background:rgba(0,0,0,0.5); page-break-inside:avoid;">
+            let html = `<table style="width:100%; border-collapse:collapse; margin-bottom:30px; text-align:left; background:rgba(0,0,0,0.5);">
                 <thead>
                     <tr>
                         <th style="padding:15px; border-bottom:2px solid var(--primary-accent); background:rgba(255,255,255,0.1);">${headers[0]}</th>
@@ -741,79 +859,6 @@
             });
             html += `</tbody></table>`;
             return html;
-        }
-
-        // --- REAL LIFE BOOK (STATIC MANUAL & PDF EXPORT) ---
-
-        function generateStaticPlaybook() {
-            let container = document.getElementById('bookContainer');
-            if(container.innerHTML !== '') return; 
-            
-            let html = `
-            <div style="text-align:center;">
-                <svg width="60" height="60" viewBox="0 0 100 100" style="margin-bottom:10px;">
-                    <path d="M50 5 L85 20 V50 C85 75 50 95 50 95 C50 95 15 75 15 50 V20 Z" fill="#0f3460" stroke="#00e5ff" stroke-width="4"/>
-                    <path d="M50 22 L65 35 H35 Z M50 35 V70 M38 50 H62" stroke="#00e5ff" stroke-width="4" fill="none"/>
-                </svg>
-                <h1 style="color:var(--primary-accent); margin-bottom:5px;">BISHOP STORTFORD KNIGHTS</h1>
-                <h3 style="color:#fff; margin-top:0; font-weight:normal;">Official 2v2 Playbook & Operational Manual</h3>
-                <hr style="border-color:rgba(255,255,255,0.2); margin-bottom:40px;">
-            </div>`;
-            
-            // 1. Plays Section
-            ['passing', 'running', 'trick'].forEach(cat => {
-                html += `<h2 style="color:var(--primary-accent); margin-top:20px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; text-transform:uppercase;">${cat} PLAYS (2v2)</h2>`;
-                html += `<div style="text-align:center;">`;
-                
-                playsData[cat].forEach((play, idx) => {
-                    let pid = `book-play-${cat}-${idx}`;
-                    html += `
-                    <div style="display:inline-block; width:500px; margin:20px 10px; text-align:left; page-break-inside: avoid;">
-                        <h4 style="color:#00e5ff; margin-bottom:8px; font-size:18px;">${idx+1}. ${play}</h4>
-                        <div class="pitch" id="${pid}" style="margin:0;">
-                            <div class="endzone-line">END ZONE</div>
-                            <svg class="pass-lines"></svg>
-                        </div>
-                    </div>`;
-                });
-                html += `</div>`;
-            });
-
-            // 2. Drills Section
-            html += `<h2 style="color:var(--secondary-accent); margin-top:60px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; page-break-before: always;">MANUAL DRILL DIRECTORY</h2>`;
-            ['qb', 'wr', 'db'].forEach(pos => {
-                html += `<h3 style="text-transform:uppercase; color:#fff; margin-top:25px;">${pos} Drills</h3>`;
-                html += buildGridHTML(["Focus Area", "Primary Drill", "Secondary Drill"], drillPlans[pos], true);
-            });
-
-            // 3. Fitness Section 
-            html += `<h2 style="color:var(--text-light); margin-top:60px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; page-break-before: always;">FITNESS PROTOCOLS</h2>`;
-            ['week1', 'week2'].forEach(week => {
-                html += `<h3 style="text-transform:uppercase; color:#fff; margin-top:25px;">${week}</h3>`;
-                html += buildGridHTML(["Day", "Movement Block 1", "Movement Block 2"], fitnessPlans[week], false);
-            });
-            
-            container.innerHTML = html;
-
-            ['passing', 'running', 'trick'].forEach(cat => {
-                playsData[cat].forEach((play, idx) => {
-                    loadPlayOnField(play, `book-play-${cat}-${idx}`, idx);
-                });
-            });
-        }
-
-        function generatePDF() {
-            const element = document.getElementById('bookContainer');
-            
-            const opt = {
-              margin:       0.4,
-              filename:     'Bishop_Stortford_Knights_Playbook.pdf',
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#11141d', logging: false },
-              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            
-            html2pdf().set(opt).from(element).save();
         }
 
         function showDrillSchedule(pos) {
@@ -908,18 +953,26 @@
         }
 
         function deleteVideo(id) {
-            let pass = prompt("Enter Coach Password to delete film:");
+            if (checkBanStatus()) return;
+
+            let pass = prompt("Enter Coach Passcode to delete film:");
             if(pass === "7245") {
+                localStorage.setItem('knights_failed_attempts', '0');
                 let request = db.transaction(['videos'], 'readwrite').objectStore('videos').delete(id);
                 request.onsuccess = () => {
                     loadVideoLibrary();
                     document.getElementById('localVideoPlayer').style.display = 'none';
                     document.getElementById('dropzoneText').style.display = 'block';
                 };
-            } else {
-                alert("Incorrect Password.");
+            } else if (pass !== null) {
+                recordFailedAttempt();
             }
         }
+
+        // Initialize ban check on page launch
+        window.addEventListener('load', () => {
+            checkBanStatus();
+        });
     </script>
 </body>
 </html>
