@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dan's Playbook - Pro Edition</title>
+    <title>Bishop Stortford Knights - Pro Edition</title>
+    <!-- Added html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-dark: #090a0f;
@@ -98,7 +100,7 @@
     <!-- Security Gate -->
     <div class="gate-container" id="gateTerminal">
         <div class="gate-card">
-            <h2 style="margin-top:0;">Dan's Playbook</h2>
+            <h2 style="margin-top:0;">Bishop Stortford Knights</h2>
             <p style="color:var(--text-muted); font-size:14px;">Master Passcode Required</p>
             <input type="password" class="pin-input" id="masterToken" placeholder="••••" maxlength="4">
             <button class="gate-btn" onclick="verifyMasterGate()">Access System</button>
@@ -109,9 +111,10 @@
     <!-- Main Dashboard -->
     <div class="game-layout" id="gameDashboard">
         <div class="nav-header">
-            <div class="brand-corner">DAN'S <span>PLAYBOOK</span></div>
+            <div class="brand-corner">BISHOP STORTFORD <span>KNIGHTS</span></div>
             <div class="menu-tabs">
                 <button class="menu-tab active" onclick="openModule('home')">HOME</button>
+                <button class="menu-tab" onclick="openModule('league')">LEAGUE TABLES</button>
                 <button class="menu-tab" onclick="openModule('plays')">ANIMATED PLAYS</button>
                 <button class="menu-tab" onclick="openModule('creator')">PLAY MAKER</button>
                 <button class="menu-tab" onclick="openModule('drills')">DRILLS</button>
@@ -123,15 +126,19 @@
 
         <!-- Home Hub -->
         <div class="main-deck" id="tileHubContainer">
-            <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('plays')">
+            <div class="dashboard-tile" style="grid-column: span 3;" onclick="openModule('league')">
+                <h2>LEAGUE TABLES</h2>
+                <p>Current Standings & Stats</p>
+            </div>
+            <div class="dashboard-tile" style="grid-column: span 3;" onclick="openModule('plays')">
                 <h2 style="color: var(--primary-accent);">ANIMATED PLAYS</h2>
                 <p>60 Unique Moving Patterns</p>
             </div>
-            <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('creator')">
+            <div class="dashboard-tile" style="grid-column: span 3;" onclick="openModule('creator')">
                 <h2>PLAY MAKER</h2>
                 <p>Draft Routes, Draw Passes & Save</p>
             </div>
-            <div class="dashboard-tile" style="grid-column: span 4;" onclick="openModule('book')">
+            <div class="dashboard-tile" style="grid-column: span 3;" onclick="openModule('book')">
                 <h2 style="color: var(--secondary-accent);">REAL LIFE BOOK</h2>
                 <p>Full Playbook, Drills & Fitness</p>
             </div>
@@ -151,6 +158,15 @@
 
         <div class="main-deck" id="workspaceContainer" style="display:none; grid-column: span 12;">
             
+            <!-- League Tables Module Shell -->
+            <div class="workspace-panel" id="panel-league">
+                <h2 style="margin-top:0; color:var(--primary-accent);">Knights League Tables & Standings</h2>
+                <p>This module is primed and ready. We can begin populating league tables, win/loss records, and player stats here whenever you are ready.</p>
+                <div style="background:rgba(0,0,0,0.5); padding:20px; border-radius:8px; border:1px dashed var(--text-muted); text-align:center; color:var(--text-muted);">
+                    [League Table Data Interface Will Go Here]
+                </div>
+            </div>
+
             <!-- Play Dictionary -->
             <div class="workspace-panel" id="panel-plays">
                 <div class="flex-box">
@@ -187,7 +203,6 @@
                         </div>
                         <div class="pitch creator-canvas" id="creatorSandbox">
                             <div class="endzone-line">END ZONE</div>
-                            <!-- Removed pointer-events:none here so we can draw on it, but CSS handles it globally, we track events on the parent sandbox -->
                             <svg class="pass-lines" id="creatorSVG" style="pointer-events: none;"></svg>
                         </div>
                     </div>
@@ -199,7 +214,6 @@
                             <option value="Running">Running</option>
                             <option value="Trick">Trick Play</option>
                         </select>
-                        <!-- Updated to Download File Instead of Mailto -->
                         <button class="action-button" onclick="submitCustomPlay()">Download Play to File</button>
                         <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Move players to start positions. Check the <strong>Draw Pencil</strong> to draw routes directly on the field! Once finished, download a text record of your setup.</p>
                     </div>
@@ -229,11 +243,18 @@
                 </div>
             </div>
 
-            <!-- Real Life Book (Static Manual) -->
+            <!-- Real Life Book (Static Manual & PDF Export) -->
             <div class="workspace-panel" id="panel-book">
-                <h2 style="margin-top:0; color:var(--primary-accent);">Dan's Playbook: The Manual</h2>
-                <p>The complete collection. Scroll through all static diagrams, drill instructions, and fitness plans. Perfect for printing or studying offline.</p>
-                <div id="bookContainer">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h2 style="margin-top:0; color:var(--primary-accent);">Bishop Stortford Knights: The Manual</h2>
+                        <p>The complete collection. Scroll through all static diagrams, drill instructions, and fitness plans.</p>
+                    </div>
+                    <!-- New PDF Generation Button -->
+                    <button class="action-button" style="width:auto; padding:15px 30px; background:var(--secondary-accent); color:#fff;" onclick="generatePDF()">Download as PDF</button>
+                </div>
+                
+                <div id="bookContainer" style="background:#11141d; padding:20px; border-radius:8px; color:#fff;">
                     <!-- Generated via JS -->
                 </div>
             </div>
@@ -462,7 +483,7 @@
             });
         }
 
-        // --- CUSTOM CREATOR, FIXED DRAWING & FILE DOWNLOAD ---
+        // --- CUSTOM CREATOR ---
 
         let isDrawingRoute = false;
         let currentDrawPath = null;
@@ -484,7 +505,7 @@
                 node.dataset.origX = pos.l; node.dataset.origY = pos.t; 
                 
                 node.onmousedown = function(e) {
-                    if(document.getElementById('drawModeToggle').checked) return; // Don't drag if drawing is enabled
+                    if(document.getElementById('drawModeToggle').checked) return;
                     e.preventDefault();
                     let shiftX = e.clientX - node.getBoundingClientRect().left;
                     let shiftY = e.clientY - node.getBoundingClientRect().top;
@@ -505,14 +526,13 @@
             });
         }
 
-        // Fixed SVG Line Drawing Tool
         function setupDrawing() {
             let sandbox = document.getElementById('creatorSandbox');
             let svg = document.getElementById('creatorSVG');
             
             sandbox.addEventListener('mousedown', (e) => {
-                if(!document.getElementById('drawModeToggle').checked) return; // Only draw if toggled on
-                if(e.target.classList.contains('player-node')) return; // Ignore clicks directly on players
+                if(!document.getElementById('drawModeToggle').checked) return; 
+                if(e.target.classList.contains('player-node')) return; 
                 
                 isDrawingRoute = true;
                 let rect = sandbox.getBoundingClientRect();
@@ -521,7 +541,7 @@
                 
                 currentDrawPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 currentDrawPath.setAttribute('d', `M ${x} ${y}`);
-                currentDrawPath.setAttribute('stroke', '#00e5ff'); // Bright Cyan Line
+                currentDrawPath.setAttribute('stroke', '#00e5ff'); 
                 currentDrawPath.setAttribute('stroke-width', '4');
                 currentDrawPath.setAttribute('fill', 'none');
                 svg.appendChild(currentDrawPath);
@@ -546,7 +566,6 @@
             document.getElementById('creatorSVG').innerHTML = '';
         }
 
-        // Fixed Submission (Text Download instead of failing Email)
         function submitCustomPlay() {
             let name = document.getElementById('customPlayName').value.trim();
             let cat = document.getElementById('customPlayCat').value;
@@ -555,9 +574,8 @@
             let nodes = Array.from(document.getElementById('creatorSandbox').children).filter(c => c.classList.contains('player-node'));
             let coords = nodes.map(n => `${n.innerText}: [X: ${Math.round(parseFloat(n.style.left))}, Y: ${Math.round(parseFloat(n.style.top))}]`).join("\n");
             
-            let content = `DAN'S PLAYBOOK - CUSTOM PLAY\n\nName: ${name}\nCategory: ${cat}\n\nStarting Coordinates:\n${coords}\n\n(Note: Hand-drawn lines are visual only. Use these coordinates to recreate the starting formation in practice.)`;
+            let content = `BISHOP STORTFORD KNIGHTS - CUSTOM PLAY\n\nName: ${name}\nCategory: ${cat}\n\nStarting Coordinates:\n${coords}\n\n(Note: Hand-drawn lines are visual only. Use these coordinates to recreate the starting formation in practice.)`;
             
-            // Create a Blob and Download It
             let blob = new Blob([content], { type: "text/plain" });
             let link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
@@ -569,17 +587,17 @@
             alert("Success! Play saved as a text file to your device.");
         }
 
-        // --- REAL LIFE BOOK (ALL PLAYS, DRILLS, AND FITNESS) ---
+        // --- REAL LIFE BOOK (STATIC MANUAL & PDF GENERATION) ---
 
         function generateStaticPlaybook() {
             let container = document.getElementById('bookContainer');
-            if(container.innerHTML !== '') return; // Only generate once
+            if(container.innerHTML !== '') return; 
             
-            let html = '';
+            let html = `<h1 style="text-align:center; color:var(--primary-accent); margin-bottom:10px;">BISHOP STORTFORD KNIGHTS PLAYBOOK</h1><hr style="border-color:rgba(255,255,255,0.2); margin-bottom:30px;">`;
             
             // 1. Plays Section
             ['passing', 'running', 'trick'].forEach(cat => {
-                html += `<h2 style="color:var(--primary-accent); margin-top:40px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px;">${cat.toUpperCase()} PLAYS</h2>`;
+                html += `<h2 style="color:var(--primary-accent); margin-top:20px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px;">${cat.toUpperCase()} PLAYS</h2>`;
                 html += `<div class="flex-box" style="gap:15px; justify-content:center;">`;
                 
                 playsData[cat].forEach((play, idx) => {
@@ -596,14 +614,14 @@
                 html += `</div>`;
             });
 
-            // 2. Drills Section added to the Book
+            // 2. Drills Section
             html += `<h2 style="color:var(--secondary-accent); margin-top:60px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px;">MANUAL DRILL DIRECTORY</h2>`;
             ['qb', 'wr', 'db'].forEach(pos => {
                 html += `<h3 style="text-transform:uppercase;">${pos} Drills</h3>`;
                 html += buildGridHTML(["Focus Area", "Primary Drill", "Secondary Drill"], drillPlans[pos], true);
             });
 
-            // 3. Fitness Section added to the Book
+            // 3. Fitness Section 
             html += `<h2 style="color:var(--text-light); margin-top:60px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px;">FITNESS PROTOCOLS</h2>`;
             ['week1', 'week2'].forEach(week => {
                 html += `<h3 style="text-transform:uppercase;">${week}</h3>`;
@@ -612,12 +630,27 @@
             
             container.innerHTML = html;
 
-            // Load static graphics into the mini pitches
             ['passing', 'running', 'trick'].forEach(cat => {
                 playsData[cat].forEach((play, idx) => {
                     loadPlayOnField(play, `book-play-${cat}-${idx}`, idx);
                 });
             });
+        }
+
+        // Generates the PDF using the html2pdf library
+        function generatePDF() {
+            const element = document.getElementById('bookContainer');
+            
+            const opt = {
+              margin:       [0.5, 0.5, 0.5, 0.5], // Top, Left, Bottom, Right
+              filename:     'Bishop_Stortford_Knights_Playbook.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#11141d' }, // Capture dark mode colors accurately
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            
+            // Invoke HTML to PDF
+            html2pdf().set(opt).from(element).save();
         }
 
         // --- DRILLS & FITNESS TIMETABLES ---
