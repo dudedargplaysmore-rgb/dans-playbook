@@ -246,7 +246,7 @@
                         <div style="max-width:500px; display:flex; gap:10px; flex-wrap:wrap;">
                             <button class="action-button" style="flex:1;" onclick="executeAnimation('playPitchCanvas')">Hike! (Run 2v2 Play)</button>
                             <button class="action-button secondary-button" style="flex:1;" onclick="resetAnimation('playPitchCanvas')">Reset Field</button>
-                            <button class="danger-button" style="width:100%; margin-top:5px;" onclick="deleteCurrentPlay()">🗑️ Delete Play</button>
+                            <button class="danger-button" style="width:100%; margin-top:5px;" onclick="deleteCurrentPlay()">🔒 Delete Play</button>
                         </div>
                     </div>
                 </div>
@@ -672,10 +672,14 @@
         }
 
         function deleteCurrentPlay() {
+            if (checkBanStatus()) return;
+
             if (playsData[currentPlayType].length === 0) return;
             let playName = playsData[currentPlayType][currentPlayIndex];
             
-            if (confirm(`Are you sure you want to delete "${playName}" from ${currentPlayType.toUpperCase()} plays?`)) {
+            let pass = prompt(`Enter Coach Passcode (7245) to delete "${playName}":`);
+            if (pass === "7245") {
+                localStorage.setItem('knights_failed_attempts', '0');
                 playsData[currentPlayType].splice(currentPlayIndex, 1);
                 if (customPlayDetails[playName]) {
                     delete customPlayDetails[playName];
@@ -684,6 +688,8 @@
                 currentPlayIndex = 0;
                 switchPlayCategory();
                 alert(`"${playName}" has been deleted.`);
+            } else if (pass !== null) {
+                recordFailedAttempt();
             }
         }
 
